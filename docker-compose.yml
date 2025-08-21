@@ -1,0 +1,49 @@
+# Servizio per RabbitMQ
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: RabbitMQ
+    ports:
+      - "5672:5672"   
+      - "15672:15672" # Porta per la GUI di gestione
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Rome # Orario italiano nei log
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  # Servizio per PostgreSQL
+  postgres:
+    image: postgres:13-alpine
+    container_name: PostgreSQL
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Rome # Orario italiano nei log
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Servizio per Redis
+  redis:
+    image: redis:alpine
+    container_name: Redis
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env 
+    environment:
+      - TZ=Europe/Rome # Orario italiano nei log
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:
+  postgres_data:
+  redis-data:
