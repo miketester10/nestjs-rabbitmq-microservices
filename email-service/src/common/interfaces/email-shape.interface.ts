@@ -1,5 +1,5 @@
 export interface EmailShape {
-  to: string;
+  recipients: string[];
   subject: string;
   html: string;
 }

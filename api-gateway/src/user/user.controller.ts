@@ -8,7 +8,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.userService.register(createUserDto);
+  async register(@Body() createUserDto: CreateUserDto) {
+    await this.userService.register(createUserDto);
+    return {
+      message:
+        'User registrato con successo. Un link di verifica è stato inviato alla tua email.',
+    };
   }
 }

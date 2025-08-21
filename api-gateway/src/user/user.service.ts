@@ -22,7 +22,7 @@ export class UserService {
     @Inject('EMAIL_SERVICE') private readonly client: ClientProxy,
   ) {}
 
-  async register(createUserDto: CreateUserDto): Promise<{ message: string }> {
+  async register(createUserDto: CreateUserDto): Promise<void> {
     const { firstName, lastName, email, password } = createUserDto;
 
     const userExist = await this.userRepository.findOne({ where: { email } });
@@ -39,24 +39,21 @@ export class UserService {
     await this.userRepository.save(user);
 
     this.sendVerificationEmail(user.id, user.email);
-
-    return {
-      message:
-        'User registrato con successo. Un link di verifica è stato inviato alla tua email.',
-    };
   }
 
   private sendVerificationEmail(userId: number, email: string): void {
     const verificationLink = `http://localhost:3000/users/verify-email?token=xxxxxxxxxxx`;
 
     const emailShape: EmailShape = {
-      to: email,
+      recipients: [email],
       subject: 'Verifica la tua email',
       html: `
         <div style="font-family: Arial, sans-serif; color: #333;">
-            <p>Ciao,</p>
-            <p>clicca sul link qui sotto per verificare la tua email:</p>
-            <p><a href="${verificationLink}">Verifica Email</a></p>
+            <p>Benvenuto,</p>
+            <p>per completare il processo di registrazione, clicca sul link qui sotto per verificare la tua email:</p>
+            <p><a href="${verificationLink}">Verifica Adesso</a></p>
+            <p>Il link è valido per 5 minuti.</p>
+
             <p>Se non ti sei registrato, ignora questa email.</p>
         </div>
         `,
