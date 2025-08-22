@@ -14,6 +14,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { EmailShape } from 'src/common/interfaces/email-shape.interface';
+import { verificationEmailTemplate } from 'src/email/templates/verification-email';
 import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -46,12 +47,12 @@ export class UserService {
       email,
       password: passwordHash,
     });
-    await this.userRepository.save(user);
 
-    this.sendVerificationEmail(user.id, user.email);
+    await this.userRepository.save(user);
+    await this.sendVerificationEmail(user.id, user.firstName, user.email);
   }
 
-  async verifyEmail(token: string) {
+  async verifyEmail(token: string): Promise<void> {
     const userId = await this.cacheManager.get<number>(
       `email_verify:token:${token}`,
     );
@@ -64,32 +65,22 @@ export class UserService {
     // Elimina token e user mapping dalla cache
     await this.cacheManager.del(`email_verify:token:${token}`);
     await this.cacheManager.del(`email_verify:user:${userId}`);
-
-    return { message: 'Email verificata con successo' };
   }
 
   private async sendVerificationEmail(
     userId: number,
+    firstname: string,
     email: string,
   ): Promise<void> {
     const token = await this.generateToken(userId);
 
-    const baseUrl = <string>this.configService.get('BASE_URL_VERIFY_EMAIL');
+    const baseUrl = this.configService.get('BASE_URL_VERIFY_EMAIL');
     const verificationLink = `${baseUrl}?token=${token}`;
 
     const emailShape: EmailShape = {
       recipients: [email],
       subject: 'Verifica la tua email',
-      html: `
-        <div style="font-family: Arial, sans-serif; color: #333;">
-            <p>Benvenuto,</p>
-            <p>per completare il processo di registrazione, clicca sul link qui sotto per verificare la tua email:</p>
-            <p><a href="${verificationLink}">Verifica Adesso</a></p>
-            <p>Il link è valido per 5 minuti.</p>
-
-            <p>Se non ti sei registrato, ignora questa email.</p>
-        </div>
-        `,
+      html: verificationEmailTemplate(firstname, verificationLink),
     };
 
     this.logger.debug(`Evento [user_created] emesso`);
@@ -109,16 +100,8 @@ export class UserService {
     const token = randomBytes(32).toString('hex');
 
     // Imposta token e user mapping nella cache
-    await this.cacheManager.set(
-      `email_verify:token:${token}`,
-      userId,
-      5 * 60 * 1000, // 5 minuti
-    );
-    await this.cacheManager.set(
-      `email_verify:user:${userId}`,
-      token,
-      5 * 60 * 1000, // 5 minuti
-    );
+    await this.cacheManager.set(`email_verify:token:${token}`, userId);
+    await this.cacheManager.set(`email_verify:user:${userId}`, token);
 
     return token;
   }

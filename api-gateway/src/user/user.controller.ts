@@ -10,14 +10,12 @@ export class UserController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     await this.userService.register(createUserDto);
-    return {
-      message:
-        'User registrato con successo. Un link di verifica è stato inviato alla tua email.',
-    };
+    return 'User registrato con successo. Un link di verifica è stato inviato alla tua email.';
   }
 
   @Get('verify-email')
-  verify(@Query() query: VerifyEmailDto) {
-    return this.userService.verifyEmail(query.token);
+  async verify(@Query() query: VerifyEmailDto) {
+    await this.userService.verifyEmail(query.token);
+    return 'Email verificata con successo';
   }
 }
