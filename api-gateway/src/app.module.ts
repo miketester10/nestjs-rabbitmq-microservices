@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from 'db/data-source';
 import { UserModule } from './user/user.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { createKeyv } from '@keyv/redis';
 
 @Module({
   imports: [
@@ -13,13 +14,16 @@ import { CacheModule } from '@nestjs/cache-manager';
       isGlobal: true,
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        store: '',
-        host: configService.get<string>('REDIS_HOST'),
-        port: configService.get<number>('REDIS_PORT'),
-        password: configService.get<string>('REDIS_PASSWORD'),
-        ttl: 2 * 60 * 1000,
-      }),
+      useFactory: (configService: ConfigService) => {
+        return {
+          stores: [
+            createKeyv({
+              url: configService.get<string>('REDIS_URL'),
+              password: configService.get<string>('REDIS_PASSWORD'),
+            }),
+          ],
+        };
+      },
     }),
     UserModule,
   ],

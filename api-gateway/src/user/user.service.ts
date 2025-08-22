@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   BadRequestException,
   Inject,
@@ -74,7 +70,7 @@ export class UserService {
   ): Promise<void> {
     const token = await this.generateToken(userId);
 
-    const baseUrl = this.configService.get('BASE_URL_VERIFY_EMAIL');
+    const baseUrl = this.configService.get<string>('BASE_URL_VERIFY_EMAIL');
     const verificationLink = `${baseUrl}?token=${token}`;
 
     const emailShape: EmailShape = {
@@ -100,8 +96,9 @@ export class UserService {
     const token = randomBytes(32).toString('hex');
 
     // Imposta token e user mapping nella cache
-    await this.cacheManager.set(`email_verify:token:${token}`, userId);
-    await this.cacheManager.set(`email_verify:user:${userId}`, token);
+    const ttl = 5 * 60 * 1000;
+    await this.cacheManager.set(`email_verify:token:${token}`, userId, ttl);
+    await this.cacheManager.set(`email_verify:user:${userId}`, token, ttl);
 
     return token;
   }
