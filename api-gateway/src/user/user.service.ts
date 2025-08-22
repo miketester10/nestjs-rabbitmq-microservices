@@ -84,7 +84,7 @@ export class UserService {
     };
 
     this.logger.debug(`Evento [user_created] emesso`);
-    this.client.emit('user_created', emailShape);
+    this.client.emit('user.created', emailShape);
   }
 
   private async generateToken(userId: number): Promise<string> {

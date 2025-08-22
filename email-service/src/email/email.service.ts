@@ -1,22 +1,24 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EmailShape } from 'src/common/interfaces/email-shape.interface';
 import { Transporter } from 'nodemailer';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
-export class EmailService {
+export class EmailService implements OnModuleInit {
   private readonly logger = new Logger(EmailService.name);
   private transporter: Transporter;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {}
+
+  onModuleInit() {
     this.transporter = nodemailer.createTransport({
-      host: <string>configService.get('EMAIL_HOST'),
-      port: <number>configService.get('PORT'),
+      host: <string>this.configService.get('EMAIL_HOST'),
+      port: <number>this.configService.get('PORT'),
       secure: true,
       auth: {
-        user: <string>configService.get('USER_EMAIL'),
-        pass: <string>configService.get('PASSWORD_APP'),
+        user: <string>this.configService.get('USER_EMAIL'),
+        pass: <string>this.configService.get('PASSWORD_APP'),
       },
     });
   }

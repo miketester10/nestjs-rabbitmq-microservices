@@ -9,7 +9,7 @@ export class EmailController {
 
   constructor(private readonly emailService: EmailService) {}
 
-  @EventPattern('user_created')
+  @EventPattern('user.created')
   async handleUserCreated(@Payload() data: EmailShape) {
     this.logger.debug(`Evento [user_created] ricevuto`);
     await this.emailService.sendVerificationEmail(data);
