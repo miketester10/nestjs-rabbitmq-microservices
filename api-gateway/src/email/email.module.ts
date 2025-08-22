@@ -10,13 +10,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: (configService: ConfigService) => {
-          const url = <string>configService.get('RABBITMQ_URL');
-          const queue = <string>configService.get('RABBITMQ_QUEUE');
+          const url = configService.get<string>('RABBITMQ_URL');
+          const queue = configService.get<string>('RABBITMQ_QUEUE');
 
           return {
             transport: Transport.RMQ,
             options: {
-              urls: [url],
+              urls: [url!],
               queue: queue,
               queueOptions: { durable: true },
             },

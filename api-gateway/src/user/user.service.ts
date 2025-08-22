@@ -56,7 +56,7 @@ export class UserService {
       `${EmailVerifyKey.TOKEN}:${token}`,
     );
     if (!userId) {
-      throw new BadRequestException('Token invalido o scaduto');
+      throw new BadRequestException('Token invalido o scaduto.');
     }
 
     await this.userRepository.update(userId, { isVerified: true });
@@ -65,7 +65,7 @@ export class UserService {
     await this.cacheManager.del(`${EmailVerifyKey.TOKEN}:${token}`);
     await this.cacheManager.del(`${EmailVerifyKey.USER}:${userId}`);
 
-    return 'Email verificata con successo';
+    return 'Email verificata con successo.';
   }
 
   async resendVerificationEmail(email: string): Promise<string> {

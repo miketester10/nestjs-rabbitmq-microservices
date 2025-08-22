@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { TokenDto } from './dto/token.dto';
 import { EmailDto } from './dto/email.dto';
+import { minutes, Throttle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UserController {
@@ -18,8 +19,9 @@ export class UserController {
     return await this.userService.verifyEmail(query.token);
   }
 
+  // @UseGuards(ThrottlerGuard)
+  @Throttle({ general: { ttl: minutes(1), limit: 1 } }) // max 1 richiesta / minuto per IP (ovveride throttler globale)
   @Post('resend-email-verification')
-  // @Throttle(1, 60) // max 1 richiesta / minuto per IP
   async resend(@Body() body: EmailDto) {
     return this.userService.resendVerificationEmail(body.email);
   }

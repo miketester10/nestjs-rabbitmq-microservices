@@ -13,18 +13,18 @@ export class EmailService implements OnModuleInit {
 
   onModuleInit() {
     this.transporter = nodemailer.createTransport({
-      host: <string>this.configService.get('EMAIL_HOST'),
-      port: <number>this.configService.get('PORT'),
+      host: this.configService.get<string>('EMAIL_HOST'),
+      port: Number(this.configService.get<string>('PORT')),
       secure: true,
       auth: {
-        user: <string>this.configService.get('USER_EMAIL'),
-        pass: <string>this.configService.get('PASSWORD_APP'),
+        user: this.configService.get<string>('USER_EMAIL'),
+        pass: this.configService.get<string>('PASSWORD_APP'),
       },
     });
   }
 
   async sendVerificationEmail(emailShape: EmailShape): Promise<void> {
-    const from = <string>this.configService.get('USER_EMAIL');
+    const from = this.configService.get<string>('USER_EMAIL');
     const { recipients, subject, html } = emailShape;
 
     try {
