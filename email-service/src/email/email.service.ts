@@ -13,7 +13,7 @@ export class EmailService implements OnModuleInit {
 
   onModuleInit() {
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('EMAIL_HOST'),
+      host: this.configService.get<string>('HOST'),
       port: Number(this.configService.get<string>('PORT')),
       secure: true,
       auth: {
