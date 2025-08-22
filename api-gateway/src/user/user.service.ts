@@ -16,6 +16,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { EmailVerifyKey } from 'src/common/enums/cache-keys.enum';
 
 @Injectable()
 export class UserService {
@@ -29,7 +30,7 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(createUserDto: CreateUserDto): Promise<void> {
+  async register(createUserDto: CreateUserDto): Promise<string> {
     const { firstName, lastName, email, password } = createUserDto;
 
     const userExist = await this.userRepository.findOne({ where: { email } });
@@ -46,11 +47,13 @@ export class UserService {
 
     await this.userRepository.save(user);
     await this.sendVerificationEmail(user.id, user.firstName, user.email);
+
+    return 'User registrato con successo. Un link di verifica è stato inviato alla tua email.';
   }
 
-  async verifyEmail(token: string): Promise<void> {
+  async verifyEmail(token: string): Promise<string> {
     const userId = await this.cacheManager.get<number>(
-      `email_verify:token:${token}`,
+      `${EmailVerifyKey.TOKEN}:${token}`,
     );
     if (!userId) {
       throw new BadRequestException('Token invalido o scaduto');
@@ -59,8 +62,24 @@ export class UserService {
     await this.userRepository.update(userId, { isVerified: true });
 
     // Elimina token e user mapping dalla cache
-    await this.cacheManager.del(`email_verify:token:${token}`);
-    await this.cacheManager.del(`email_verify:user:${userId}`);
+    await this.cacheManager.del(`${EmailVerifyKey.TOKEN}:${token}`);
+    await this.cacheManager.del(`${EmailVerifyKey.USER}:${userId}`);
+
+    return 'Email verificata con successo';
+  }
+
+  async resendVerificationEmail(email: string): Promise<string> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new BadRequestException('Email non registrata.');
+    }
+    if (user.isVerified) {
+      throw new BadRequestException('Email già verificata.');
+    }
+
+    await this.sendVerificationEmail(user.id, user.firstName, user.email);
+
+    return 'Un link di verifica è stato rinviato alla tua email.';
   }
 
   private async sendVerificationEmail(
@@ -86,10 +105,10 @@ export class UserService {
   private async generateToken(userId: number): Promise<string> {
     // Controlla se esiste un token vecchio e lo cancella
     const oldToken = await this.cacheManager.get<string>(
-      `email_verify:user:${userId}`,
+      `${EmailVerifyKey.USER}:${userId}`,
     );
     if (oldToken) {
-      await this.cacheManager.del(`email_verify:token:${oldToken}`);
+      await this.cacheManager.del(`${EmailVerifyKey.TOKEN}:${oldToken}`);
     }
 
     // Genera nuovo token
@@ -97,8 +116,12 @@ export class UserService {
 
     // Imposta token e user mapping nella cache
     const ttl = 5 * 60 * 1000;
-    await this.cacheManager.set(`email_verify:token:${token}`, userId, ttl);
-    await this.cacheManager.set(`email_verify:user:${userId}`, token, ttl);
+    await this.cacheManager.set(
+      `${EmailVerifyKey.TOKEN}:${token}`,
+      userId,
+      ttl,
+    );
+    await this.cacheManager.set(`${EmailVerifyKey.USER}:${userId}`, token, ttl);
 
     return token;
   }
