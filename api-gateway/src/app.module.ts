@@ -1,13 +1,14 @@
+import { createKeyv } from '@keyv/redis';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { minutes, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from 'db/data-source';
-import { UserModule } from './user/user.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import { createKeyv } from '@keyv/redis';
-import { minutes, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import Redis from 'ioredis';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import Redis from 'ioredis';
       }),
     }),
     UserModule,
+    AuthModule,
   ],
   providers: [
     {
