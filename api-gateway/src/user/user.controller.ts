@@ -19,7 +19,6 @@ export class UserController {
     return await this.userService.verifyEmail(query.token);
   }
 
-  // @UseGuards(ThrottlerGuard)
   @Throttle({ general: { ttl: minutes(1), limit: 1 } }) // max 1 richiesta / minuto per IP (ovveride throttler globale)
   @Post('resend-email-verification')
   async resend(@Body() body: EmailDto) {
