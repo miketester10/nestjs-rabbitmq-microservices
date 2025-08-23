@@ -35,6 +35,13 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
+  async getProfile(email: string): Promise<{ user: Omit<User, 'password'> }> {
+    const user = await this.findOne(email);
+    if (!user) throw new NotFoundException('Utente non trovato.');
+    const { password, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword };
+  }
+
   async register(createUserDto: CreateUserDto): Promise<string> {
     const { firstName, lastName, email, password } = createUserDto;
 

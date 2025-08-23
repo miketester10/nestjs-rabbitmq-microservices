@@ -1,18 +1,20 @@
-// import { Injectable } from '@nestjs/common';
-// import { JwtService } from '@nestjs/jwt';
-// import { JwtPayload } from 'src/common/interfaces/jwt-payload.interface';
-// import { GoogleUser } from 'src/user/entities/user.entity';
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'src/common/interfaces/jwt-payload.interface';
 
-// @Injectable()
-// export class JwtAuthService {
-//   constructor(private jwtService: JwtService) {}
+import { User } from 'src/user/entities/user.entity';
 
-//   async signToken(user: GoogleUser): Promise<string> {
-//     const payload: JwtPayload = {
-//       sub: user.providerId,
-//       role: user.role,
-//     };
+@Injectable()
+export class JwtAuthService {
+  constructor(private jwtService: JwtService) {}
 
-//     return await this.jwtService.signAsync(payload);
-//   }
-// }
+  async signToken(user: User): Promise<string> {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      firstName: user.firstName,
+    };
+
+    return await this.jwtService.signAsync(payload);
+  }
+}
