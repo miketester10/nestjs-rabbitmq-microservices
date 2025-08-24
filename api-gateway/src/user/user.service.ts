@@ -42,6 +42,11 @@ export class UserService {
     return { user: userWithoutPassword };
   }
 
+  async update(entity: User, updateDto: Partial<User>): Promise<User> {
+    Object.assign(entity, updateDto);
+    return this.userRepository.save(entity);
+  }
+
   async register(createUserDto: CreateUserDto): Promise<string> {
     const { firstName, lastName, email, password } = createUserDto;
 

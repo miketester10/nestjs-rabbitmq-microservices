@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtAuthService } from './jwt.service';
-import { JwtStrategy } from './jwt.strategy';
+import { Jwt2faService } from './jwt-2fa.service';
+import { Jwt2faStrategy } from './jwt-2fa.strategy';
 
 @Module({
   imports: [
@@ -10,15 +10,15 @@ import { JwtStrategy } from './jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: configService.get<string>('JWT_2FA_SECRET'),
         global: true,
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN'),
+          expiresIn: configService.get<string>('JWT_2FA_EXPIRES_IN'),
         },
       }),
     }),
   ],
-  providers: [JwtAuthService, JwtStrategy],
-  exports: [JwtAuthService],
+  providers: [Jwt2faService, Jwt2faStrategy],
+  exports: [Jwt2faService],
 })
-export class JwtAuthModule {}
+export class Jwt2faModule {}

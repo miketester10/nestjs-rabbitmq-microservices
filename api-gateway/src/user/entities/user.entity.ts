@@ -15,6 +15,12 @@ export class User extends BaseEntity {
   @Column({ nullable: false })
   password: string;
 
+  @Column({ nullable: true })
+  otpSecret: string; // segreto per Google Authenticator, Authy, ecc.
+
+  @Column({ default: false })
+  isTwoFactorEnabled: boolean;
+
   @Column({ default: false })
   isVerified: boolean;
 }
