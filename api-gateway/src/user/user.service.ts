@@ -35,11 +35,13 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  async getProfile(email: string): Promise<{ user: Omit<User, 'password'> }> {
+  async getProfile(
+    email: string,
+  ): Promise<{ user: Omit<User, 'password' | 'otpSecret'> }> {
     const user = await this.findOne(email);
     if (!user) throw new NotFoundException('Utente non trovato.');
-    const { password, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword };
+    const { password, otpSecret, ...rest } = user;
+    return { user: rest };
   }
 
   async update(entity: User, updateDto: Partial<User>): Promise<User> {

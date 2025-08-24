@@ -5,6 +5,8 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from './JWT/guards/jwt-auth-guard.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { JwtPayload } from 'src/common/interfaces/jwt-payload.interface';
+import { Jwt2faGuard } from './JWT-2FA/guards/jwt-2fa-guard.guard';
+import { OtpDto } from './dto/otp.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -16,12 +18,12 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  // @ApiBearerAuth()
-  // @UseGuards(Jwt2faGuard)
-  // @Post('verify-otp')
-  // async verifyOtp(@Body() body: { userId: number; code: string }) {
-  //   return this.authService.verifyOtp(body.userId, body.code);
-  // }
+  @ApiBearerAuth()
+  @UseGuards(Jwt2faGuard)
+  @Post('verify-otp')
+  async verifyOtp(@Body() otp: OtpDto, @CurrentUser() payload: JwtPayload) {
+    return this.authService.verifyOtp(otp.code, payload.email);
+  }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
