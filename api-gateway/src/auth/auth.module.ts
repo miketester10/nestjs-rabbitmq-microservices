@@ -4,9 +4,10 @@ import { AuthService } from './auth.service';
 import { JwtAuthModule } from './JWT/jwt.module';
 import { UserModule } from 'src/user/user.module';
 import { Jwt2faModule } from './JWT-2FA/jwt-2fa.module';
+import { JwtRefreshModule } from './JWT-REFRESH/jwt-refresh.module';
 
 @Module({
-  imports: [JwtAuthModule, Jwt2faModule, UserModule],
+  imports: [JwtAuthModule, JwtRefreshModule, Jwt2faModule, UserModule],
   controllers: [AuthController],
   providers: [AuthService],
   exports: [],

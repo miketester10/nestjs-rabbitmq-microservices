@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -10,19 +11,27 @@ import * as bcrypt from 'bcrypt';
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
 import { JwtAuthService } from './JWT/jwt.service';
+import { JwtRefreshService } from './JWT-REFRESH/jwt-refresh.service';
 import { Jwt2faService } from './JWT-2FA/jwt-2fa.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { JwtKey } from 'src/common/enums/cache-keys.enum';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly userService: UserService,
     private readonly jwtAuthService: JwtAuthService,
+    private readonly jwtRefreshService: JwtRefreshService,
     private readonly jwt2faService: Jwt2faService,
   ) {}
 
-  async login(
-    loginDto: LoginDto,
-  ): Promise<{ otpRequired: boolean; accessToken: string }> {
+  async login(loginDto: LoginDto): Promise<{
+    otpRequired: boolean;
+    accessToken: string;
+    refreshToken?: string;
+  }> {
     const user = await this.userService.findOne(loginDto.email);
 
     // Verifica credenziali
@@ -36,20 +45,38 @@ export class AuthService {
       );
 
     if (user.is2faEnabled) {
-      // Richiedi OTP (restituisce token temporaneo per 2FA)
-      const token = await this.jwt2faService.signToken(user);
-      return { otpRequired: true, accessToken: token };
+      // Richiedi OTP (restituisce accessToken temporaneo per 2FA)
+      const token2fa = await this.jwt2faService.signToken(user);
+      return { otpRequired: true, accessToken: token2fa };
     } else {
-      // Login normale (restituisce token JWT standard)
-      const token = await this.jwtAuthService.signToken(user);
-      return { otpRequired: false, accessToken: token };
+      // Login normale (restituisce accessToken standard e refreshToken)
+      const accessToken = await this.jwtAuthService.signToken(user);
+      const refreshToken = await this.jwtRefreshService.signToken(user);
+      return { otpRequired: false, accessToken, refreshToken };
     }
+  }
+
+  async rotateRefreshToken(
+    oldJti: string,
+    email: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    // Elimina il vecchio refreshToken dalla cache Redis
+    await this.cacheManager.del(`${JwtKey.REFRESH}:${oldJti}`);
+
+    // Verifica se l'utente esiste
+    const user = await this.userService.findOne(email);
+    if (!user) throw new NotFoundException('Utente non trovato.');
+
+    // Genera una nuova coppia di accessToken e refreshToken
+    const accessToken = await this.jwtAuthService.signToken(user);
+    const refreshToken = await this.jwtRefreshService.signToken(user);
+    return { accessToken, refreshToken };
   }
 
   async verifyOtp(
     code: string,
     email: string,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.userService.findOne(email);
 
     // Verifica se l'utente esiste
@@ -69,9 +96,10 @@ export class AuthService {
 
     if (!verified) throw new UnauthorizedException('Codice OTP non valido.');
 
-    // Genera e restituisci un token JWT
-    const token = await this.jwtAuthService.signToken(user);
-    return { accessToken: token };
+    // Restituisce accessToken standard e refreshToken
+    const accessToken = await this.jwtAuthService.signToken(user);
+    const refreshToken = await this.jwtRefreshService.signToken(user);
+    return { accessToken, refreshToken };
   }
 
   async enable2fa(email: string): Promise<{ qrcode: string; secret: string }> {

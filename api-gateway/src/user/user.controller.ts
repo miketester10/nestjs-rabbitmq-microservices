@@ -19,6 +19,7 @@ export class UserController {
     return this.userService.register(createUserDto);
   }
 
+  @Throttle({ general: { ttl: minutes(1), limit: 4 } }) // max 4 richiesta / minuto per IP (ovveride throttler globale)
   @Get('verify-email')
   async verify(@Query() query: TokenDto) {
     return this.userService.verifyEmail(query.token);
