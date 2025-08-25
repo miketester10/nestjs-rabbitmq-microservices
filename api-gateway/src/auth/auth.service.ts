@@ -83,7 +83,7 @@ export class AuthService {
     if (!user) throw new NotFoundException('Utente non trovato.');
 
     // Verifica se la 2FA è abilitata per l'utente
-    if (!user.is2faEnabled)
+    if (!user.is2faEnabled || !user.otpSecret)
       throw new BadRequestException('2FA non è abilitato per questo utente.');
 
     // Verifica se il codice OTP ricevuto è valido
