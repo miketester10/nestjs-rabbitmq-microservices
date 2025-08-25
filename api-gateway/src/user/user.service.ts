@@ -92,18 +92,23 @@ export class UserService {
   }
 
   async resendVerificationEmail(email: string): Promise<string> {
-    // Controlla se l'utente esiste e non è già verificato
     const user = await this.findOne(email);
-    if (!user) {
-      throw new BadRequestException('Email non registrata.');
-    }
-    if (user.isVerified) {
-      throw new BadRequestException('Email già verificata.');
+
+    if (user) {
+      if (!user.isVerified) {
+        // Invia nuovamente l'email di verifica
+        await this.sendVerificationEmail(user.firstName, user.email);
+      } else {
+        // Logga un avviso se l'utente è già verificato
+        this.logger.debug(`L'utente con email ${email} è già verificato.`);
+      }
+    } else {
+      // Logga un avviso se l'utente non esiste
+      this.logger.warn(`Nessun account trovato con email ${email}.`);
     }
 
-    // Invia nuovamente l'email di verifica
-    await this.sendVerificationEmail(user.firstName, user.email);
-    return 'Un link di verifica è stato rinviato alla tua email.';
+    // Risposta generica per motivi di sicurezza (contro enumeration attack)
+    return "Se c'è un account registrato con questa e-mail, ti invieremo il link per verificarlo a questo indirizzo.";
   }
 
   async verifyEmail(token: string): Promise<string> {
