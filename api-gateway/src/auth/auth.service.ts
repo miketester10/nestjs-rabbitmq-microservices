@@ -128,4 +128,10 @@ export class AuthService {
 
     return { qrcode, secret: secret.base32 };
   }
+
+  async logout(oldJti: string): Promise<string> {
+    // Elimina il vecchio refreshToken dalla cache Redis
+    await this.cacheManager.del(`${JwtKey.REFRESH}:${oldJti}`);
+    return 'Logout effettuato con successo.';
+  }
 }

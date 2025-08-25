@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -28,10 +28,8 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Get('refresh-token')
   async refresh(@CurrentUser() payload: JwtRefreshPayload) {
-    const { jti, email } = payload;
-
     const { accessToken, refreshToken } =
-      await this.authService.rotateRefreshToken(jti, email);
+      await this.authService.rotateRefreshToken(payload.jti, payload.email);
 
     return { accessToken, refreshToken };
   }
@@ -48,5 +46,12 @@ export class AuthController {
   @Post('verify-otp')
   async verifyOtp(@Body() otp: OtpDto, @CurrentUser() payload: JwtPayload) {
     return this.authService.verifyOtp(otp.code, payload.email);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtRefreshGuard)
+  @Delete('logout')
+  async logout(@CurrentUser() payload: JwtRefreshPayload) {
+    return this.authService.logout(payload.jti);
   }
 }
