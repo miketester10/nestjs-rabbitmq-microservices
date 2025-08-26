@@ -19,13 +19,13 @@ export class UserController {
     return this.userService.register(createUserDto);
   }
 
-  @Throttle({ general: { ttl: minutes(1), limit: 4 } }) // max 4 richiesta / minuto per IP (ovveride throttler globale)
+  @Throttle({ general: { ttl: minutes(1), limit: 4 } }) // max 4 richieste / minuto per IP (ovveride throttler "general")
   @Get('verify-email')
   async verify(@Query() query: TokenDto) {
     return this.userService.verifyEmail(query.token);
   }
 
-  @Throttle({ general: { ttl: minutes(1), limit: 1 } }) // max 1 richiesta / minuto per IP (ovveride throttler globale)
+  @Throttle({ general: { ttl: minutes(1), limit: 1 } }) // max 1 richiesta / minuto per IP (ovveride throttler "general")
   @Post('resend-email-verification')
   async resend(@Body() body: EmailDto) {
     return this.userService.resendVerificationEmail(body.email);
