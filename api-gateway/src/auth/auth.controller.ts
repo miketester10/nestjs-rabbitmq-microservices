@@ -14,7 +14,7 @@ import { JwtRefreshGuard } from './JWT-REFRESH/guards/jwt-refresh-guard.guard';
 import { minutes, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Auth')
-@Throttle({ general: { ttl: minutes(1), limit: 4 } }) // max 4 richieste / minuto per IP (ovveride throttler "general")
+@Throttle({ general: { ttl: minutes(1), limit: 4 } }) // max 4 richieste / minuto per IP (override throttler "general")
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
