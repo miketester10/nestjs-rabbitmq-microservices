@@ -28,10 +28,7 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Get('refresh-token')
   async refresh(@CurrentUser() payload: JwtRefreshPayload) {
-    const { accessToken, refreshToken } =
-      await this.authService.rotateRefreshToken(payload.jti, payload.email);
-
-    return { accessToken, refreshToken };
+    return this.authService.rotateRefreshToken(payload.jti, payload.email);
   }
 
   @ApiBearerAuth()
