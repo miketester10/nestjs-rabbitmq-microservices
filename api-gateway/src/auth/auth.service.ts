@@ -16,6 +16,7 @@ import { Jwt2faService } from './JWT-2FA/jwt-2fa.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { JwtKey } from 'src/common/enums/cache-keys.enum';
+import { EncryptionService } from './encryption.service';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,7 @@ export class AuthService {
     private readonly jwtAuthService: JwtAuthService,
     private readonly jwtRefreshService: JwtRefreshService,
     private readonly jwt2faService: Jwt2faService,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<{
@@ -86,9 +88,12 @@ export class AuthService {
     if (!user.is2faEnabled || !user.otpSecret)
       throw new BadRequestException('2FA non è abilitato per questo utente.');
 
+    // Decrypt secret salvato nel DB
+    const decryptedSecret = this.encryptionService.decrypt(user.otpSecret);
+
     // Verifica se il codice OTP ricevuto è valido
     const verified = speakeasy.totp.verify({
-      secret: user.otpSecret,
+      secret: decryptedSecret,
       encoding: 'base32',
       token: code,
       window: 1, // Permette una finestra di 1 intervallo di tempo (30s) per gestire discrepanze di orario
@@ -117,9 +122,12 @@ export class AuthService {
       name: `NestJS-RabbitMQ (${user.email})`,
     });
 
+    // Encrypt secret prima di salvarlo nel DB
+    const encryptedSecret = this.encryptionService.encrypt(secret.base32);
+
     // Salva il segreto dell'utente ed abilita la 2FA
     await this.userService.update(user, {
-      otpSecret: secret.base32, // in produzione, criptare questo valore
+      otpSecret: encryptedSecret,
       is2faEnabled: true,
     });
 
