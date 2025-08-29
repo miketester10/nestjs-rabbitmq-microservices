@@ -68,7 +68,7 @@ export class AuthService {
     }
   }
 
-  async rotateRefreshToken(
+  async refreshToken(
     oldJti: string,
     email: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {

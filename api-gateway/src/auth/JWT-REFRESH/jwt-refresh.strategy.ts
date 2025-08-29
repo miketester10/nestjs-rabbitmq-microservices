@@ -31,9 +31,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
       `${JwtKey.REFRESH}:${jti}`,
     );
 
-    // Se non presente => già usato/ruotato/revocato oppure mai esistito
+    // Se non presente nella Cache => già usato
     if (!refreshTokenFromCache) {
-      throw new UnauthorizedException('Refresh token non valido o già usato');
+      throw new UnauthorizedException('Refresh token già usato');
     }
 
     return payload; // Salva il payload in request.user

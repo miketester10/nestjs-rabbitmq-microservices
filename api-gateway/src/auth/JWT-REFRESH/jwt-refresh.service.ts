@@ -29,7 +29,7 @@ export class JwtRefreshService {
     // Generazione del refresh token
     const refreshToken = await this.jwtService.signAsync(payload);
 
-    // 🔐 Salva nella cache Redis il refresh "attivo" con TTL 7 giorni
+    // 🔐 Salva nella cache Redis il refresh token con TTL 7 giorni
     const ttl = 7 * 24 * 60 * 60 * 1000; // 7 giorni in ms
     await this.cacheManager.set(`${JwtKey.REFRESH}:${jti}`, refreshToken, ttl);
 
