@@ -22,7 +22,7 @@ import { JwtRefreshGuard } from './JWT-REFRESH/guards/jwt-refresh-guard.guard';
 import { minutes, Throttle } from '@nestjs/throttler';
 import { EmailDto } from 'src/user/dto/email.dto';
 import { TokenDto } from 'src/user/dto/token.dto';
-import { ResetPasswordDto } from './dto/reset-password';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Auth')
 @Throttle({ general: { ttl: minutes(1), limit: 4 } }) // max 4 richieste / minuto per IP (override throttler "general")
