@@ -6,9 +6,16 @@ import { UserModule } from 'src/user/user.module';
 import { Jwt2faModule } from './JWT-2FA/jwt-2fa.module';
 import { JwtRefreshModule } from './JWT-REFRESH/jwt-refresh.module';
 import { EncryptionService } from './encryption.service';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
-  imports: [JwtAuthModule, JwtRefreshModule, Jwt2faModule, UserModule],
+  imports: [
+    JwtAuthModule,
+    JwtRefreshModule,
+    Jwt2faModule,
+    UserModule,
+    EmailModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService, EncryptionService],
   exports: [],

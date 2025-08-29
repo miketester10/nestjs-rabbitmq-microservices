@@ -72,7 +72,7 @@ export class UserService {
   }
 
   async sendVerificationEmail(firstname: string, email: string): Promise<void> {
-    // Genera token di verifica
+    // Genera token
     const token = await this.generateToken(email);
 
     // Costruisci link di verifica

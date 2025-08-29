@@ -23,7 +23,7 @@ export class EmailService implements OnModuleInit {
     });
   }
 
-  async sendVerificationEmail(emailShape: EmailShape): Promise<void> {
+  async sendEmail(emailShape: EmailShape): Promise<void> {
     const from = this.configService.get<string>('USER_EMAIL');
     const { recipients, subject, html } = emailShape;
 
