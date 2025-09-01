@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsString, Length, Validate } from 'class-validator';
-import { PasswordMatchConstraint } from './constraint/password-match..constraint';
+import { PasswordMatchConstraint } from 'src/common/constraint/password-match.constraint';
 
 export class ResetPasswordDto {
   @IsString()

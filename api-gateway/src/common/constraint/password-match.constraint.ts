@@ -3,13 +3,16 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { ResetPasswordDto } from '../reset-password.dto';
+import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @ValidatorConstraint({ name: 'PasswordMatch', async: false })
-export class PasswordMatchConstraint implements ValidatorConstraintInterface {
+export class PasswordMatchConstraint<T extends CreateUserDto | ResetPasswordDto>
+  implements ValidatorConstraintInterface
+{
   validate(value: string, validationArguments: ValidationArguments): boolean {
     const confirmPassword = value;
-    const password = (validationArguments.object as ResetPasswordDto).password;
+    const password = (validationArguments.object as T).password;
     return password === confirmPassword;
   }
 
