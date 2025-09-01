@@ -23,6 +23,7 @@ import { ConfigService } from '@nestjs/config';
 import { EmailShape } from 'src/common/interfaces/email-shape.interface';
 import { resetPasswordTemplate } from 'src/email/templates/reset-password';
 import { ClientProxy } from '@nestjs/microservices';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -85,13 +86,15 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async enable2fa(email: string): Promise<{ qrcode: string; secret: string }> {
+  async initiate2faSetup(
+    email: string,
+  ): Promise<{ qrcode: string; secret: string }> {
     const user = await this.userService.findOne(email);
 
     // Verifica se l'utente esiste
     if (!user) throw new NotFoundException('Utente non trovato.');
 
-    // Verifica se la 2FA è già abilitata
+    // Verifica se la 2FA è abilitata per l'utente
     if (user.is2faEnabled)
       throw new BadRequestException('2FA è già abilitata per questo utente.');
 
@@ -103,10 +106,9 @@ export class AuthService {
     // Encrypt secret prima di salvarlo nel DB
     const encryptedSecret = this.encryptionService.encrypt(secret.base32);
 
-    // Salva il segreto dell'utente ed abilita la 2FA
+    // Salva solo il segreto dell'utente (deve effettuare una prima conferma con il codice otp, prima di impostare "is2faEnabled" su True)
     await this.userService.update(user, {
       otpSecret: encryptedSecret,
-      is2faEnabled: true,
     });
 
     // Crea QR code per l'app di autenticazione
@@ -115,36 +117,41 @@ export class AuthService {
     return { qrcode, secret: secret.base32 };
   }
 
-  async verifyOtp(
+  async confirm2faSetup(code: string, email: string): Promise<string> {
+    const user = await this.validateOtp(code, email, {
+      require2faDisabled: true,
+    });
+
+    await this.userService.update(user, { is2faEnabled: true });
+
+    return '2FA abilitata con successo.';
+  }
+
+  async verify2faCode(
     code: string,
     email: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.userService.findOne(email);
-
-    // Verifica se l'utente esiste
-    if (!user) throw new NotFoundException('Utente non trovato.');
-
-    // Verifica se la 2FA è abilitata per l'utente
-    if (!user.is2faEnabled || !user.otpSecret)
-      throw new BadRequestException('2FA non è abilitato per questo utente.');
-
-    // Decrypt secret salvato nel DB
-    const decryptedSecret = this.encryptionService.decrypt(user.otpSecret);
-
-    // Verifica se il codice OTP ricevuto è valido
-    const verified = speakeasy.totp.verify({
-      secret: decryptedSecret,
-      encoding: 'base32',
-      token: code,
-      window: 1, // Permette una finestra di 1 intervallo di tempo (30s) per gestire discrepanze di orario
+    const user = await this.validateOtp(code, email, {
+      require2faEnabled: true,
     });
 
-    if (!verified) throw new UnauthorizedException('Codice OTP non valido.');
-
-    // Restituisce accessToken standard e refreshToken
     const accessToken = await this.jwtAuthService.signToken(user);
     const refreshToken = await this.jwtRefreshService.signToken(user);
+
     return { accessToken, refreshToken };
+  }
+
+  async disable2fa(code: string, email: string) {
+    const user = await this.validateOtp(code, email, {
+      require2faEnabled: true,
+    });
+
+    await this.userService.update(user, {
+      is2faEnabled: false,
+      otpSecret: null,
+    });
+
+    return '2FA disabilitata con successo.';
   }
 
   async forgotPassword(email: string): Promise<string> {
@@ -207,6 +214,43 @@ export class AuthService {
     // Elimina il vecchio refreshToken dalla cache Redis
     await this.cacheManager.del(`${JwtKey.REFRESH}:${oldJti}`);
     return 'Logout effettuato con successo.';
+  }
+
+  private async validateOtp(
+    code: string,
+    email: string,
+    options: { require2faEnabled?: boolean; require2faDisabled?: boolean } = {},
+  ): Promise<User> {
+    const user = await this.userService.findOne(email);
+
+    if (!user) throw new NotFoundException('Utente non trovato.');
+
+    // Se 2FA deve essere abilitato
+    if (options.require2faEnabled && !user.is2faEnabled) {
+      throw new BadRequestException('2FA non è abilitato per questo utente.');
+    }
+
+    // Se 2FA deve essere disabilitato
+    if (options.require2faDisabled && user.is2faEnabled) {
+      throw new BadRequestException('2FA è già abilitata per questo utente.');
+    }
+
+    if (!user.otpSecret) {
+      throw new BadRequestException('OTP Secret non trovato.');
+    }
+
+    const decryptedSecret = this.encryptionService.decrypt(user.otpSecret);
+
+    const verified = speakeasy.totp.verify({
+      secret: decryptedSecret,
+      encoding: 'base32',
+      token: code,
+      window: 1,
+    });
+
+    if (!verified) throw new UnauthorizedException('Codice OTP non valido.');
+
+    return user;
   }
 
   private async generateToken(email: string): Promise<string> {

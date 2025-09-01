@@ -44,16 +44,33 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('enable-2fa')
-  async enable2FA(@CurrentUser() payload: JwtPayload) {
-    return this.authService.enable2fa(payload.email);
+  @Get('2fa/setup')
+  async initiate2faSetup(@CurrentUser() payload: JwtPayload) {
+    return this.authService.initiate2faSetup(payload.email);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/setup/verify')
+  async confirm2faSetup(
+    @Body() otp: OtpDto,
+    @CurrentUser() payload: JwtPayload,
+  ) {
+    return this.authService.confirm2faSetup(otp.code, payload.email);
   }
 
   @ApiBearerAuth()
   @UseGuards(Jwt2faGuard)
-  @Post('verify-otp')
-  async verifyOtp(@Body() otp: OtpDto, @CurrentUser() payload: JwtPayload) {
-    return this.authService.verifyOtp(otp.code, payload.email);
+  @Post('2fa/verify')
+  async verify2faCode(@Body() otp: OtpDto, @CurrentUser() payload: JwtPayload) {
+    return this.authService.verify2faCode(otp.code, payload.email);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/disable')
+  async disable2fa(@Body() otp: OtpDto, @CurrentUser() payload: JwtPayload) {
+    return this.authService.disable2fa(otp.code, payload.email);
   }
 
   @Throttle({ general: { ttl: minutes(1), limit: 1 } }) // max 1 richiesta / minuto per IP (override throttler globale)
@@ -62,7 +79,6 @@ export class AuthController {
     return this.authService.forgotPassword(body.email);
   }
 
-  @Throttle({ general: { ttl: minutes(1), limit: 4 } }) // max 4 richieste / minuto per IP (override throttler "general")
   @Post('reset-password')
   async resetPassword(
     @Body() body: ResetPasswordDto,
