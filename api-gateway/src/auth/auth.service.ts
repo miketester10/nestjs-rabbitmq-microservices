@@ -70,11 +70,10 @@ export class AuthService {
   }
 
   async refreshToken(
-    oldJti: string,
     email: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     // Elimina il vecchio refreshToken dalla cache Redis
-    await this.cacheManager.del(`${JwtKey.REFRESH}:${oldJti}`);
+    await this.cacheManager.del(`${JwtKey.REFRESH}:${email}`);
 
     // Verifica se l'utente esiste
     const user = await this.userService.findOne(email);
@@ -210,9 +209,9 @@ export class AuthService {
     return 'Password resettata con successo.';
   }
 
-  async logout(oldJti: string): Promise<string> {
+  async logout(email: string): Promise<string> {
     // Elimina il vecchio refreshToken dalla cache Redis
-    await this.cacheManager.del(`${JwtKey.REFRESH}:${oldJti}`);
+    await this.cacheManager.del(`${JwtKey.REFRESH}:${email}`);
     return 'Logout effettuato con successo.';
   }
 

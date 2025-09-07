@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtRefreshService } from './jwt-refresh.service';
 import { JwtRefreshStrategy } from './jwt-refresh.strategy';
+import { EncryptionService } from '../encryption.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { JwtRefreshStrategy } from './jwt-refresh.strategy';
       }),
     }),
   ],
-  providers: [JwtRefreshService, JwtRefreshStrategy],
+  providers: [JwtRefreshService, JwtRefreshStrategy, EncryptionService],
   exports: [JwtRefreshService],
 })
 export class JwtRefreshModule {}

@@ -12,10 +12,7 @@ import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from './JWT/guards/jwt-auth-guard.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import {
-  JwtPayload,
-  JwtRefreshPayload,
-} from 'src/common/interfaces/jwt-payload.interface';
+import { JwtPayload } from 'src/common/interfaces/jwt-payload.interface';
 import { Jwt2faGuard } from './JWT-2FA/guards/jwt-2fa-guard.guard';
 import { OtpDto } from './dto/otp.dto';
 import { JwtRefreshGuard } from './JWT-REFRESH/guards/jwt-refresh-guard.guard';
@@ -38,8 +35,8 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtRefreshGuard)
   @Get('refresh-token')
-  async refresh(@CurrentUser() payload: JwtRefreshPayload) {
-    return this.authService.refreshToken(payload.jti, payload.email);
+  async refresh(@CurrentUser() payload: JwtPayload) {
+    return this.authService.refreshToken(payload.email);
   }
 
   @ApiBearerAuth()
@@ -88,9 +85,9 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete('logout')
-  async logout(@CurrentUser() payload: JwtRefreshPayload) {
-    return this.authService.logout(payload.jti);
+  async logout(@CurrentUser() payload: JwtPayload) {
+    return this.authService.logout(payload.email);
   }
 }
