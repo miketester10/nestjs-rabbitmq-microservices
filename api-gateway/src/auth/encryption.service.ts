@@ -1,10 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as CryptoJS from 'crypto-js';
 
 @Injectable()
 export class EncryptionService {
-  private readonly logger: Logger = new Logger(EncryptionService.name);
   private readonly encryptionKey: string;
 
   constructor(private configService: ConfigService) {
