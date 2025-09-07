@@ -11,8 +11,8 @@ import { EncryptionService } from '../encryption.service';
 export class JwtRefreshService {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private jwtService: JwtService,
-    private encryptionService: EncryptionService,
+    private readonly jwtService: JwtService,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
   async signToken(user: User): Promise<string> {

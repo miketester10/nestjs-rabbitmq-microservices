@@ -5,7 +5,7 @@ import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class JwtAuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   async signToken(user: User): Promise<string> {
     const payload: JwtPayload = {

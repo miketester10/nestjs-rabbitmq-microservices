@@ -17,7 +17,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
-    private encryptionService: EncryptionService,
+    private readonly encryptionService: EncryptionService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
