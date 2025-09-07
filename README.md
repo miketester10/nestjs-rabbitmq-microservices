@@ -2,23 +2,6 @@
 
 A robust, production-ready microservices architecture built with NestJS, featuring secure authentication, 2FA, and asynchronous communication via RabbitMQ.
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [API Documentation](#api-documentation)
-- [Usage Examples](#usage-examples)
-- [Security Features](#security-features)
-- [Development](#development)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-
 ## 🎯 Overview
 
 This project demonstrates a modern microservices architecture with:
