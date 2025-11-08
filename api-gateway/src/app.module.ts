@@ -43,6 +43,8 @@ import { UserModule } from './user/user.module';
           ],
           storage: new ThrottlerStorageRedisService(
             new Redis({
+              host: configService.get<string>('REDIS_HOST'),
+              port: Number(configService.get<string>('REDIS_PORT')),
               password: configService.get<string>('REDIS_PASSWORD'),
             }),
           ),
