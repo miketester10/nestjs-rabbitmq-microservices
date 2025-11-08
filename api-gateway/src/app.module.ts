@@ -32,7 +32,7 @@ import { UserModule } from './user/user.module';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         throttlers: [
           {
             name: 'general',
@@ -42,9 +42,9 @@ import { UserModule } from './user/user.module';
         ],
         storage: new ThrottlerStorageRedisService(
           new Redis({
-            host: config.get<string>('REDIS_HOST'),
-            port: Number(config.get<string>('REDIS_PORT')),
-            password: config.get<string>('REDIS_PASSWORD'),
+            host: configService.get<string>('REDIS_HOST'),
+            port: Number(configService.get<string>('REDIS_PORT')),
+            password: configService.get<string>('REDIS_PASSWORD'),
           }),
         ),
         errorMessage: 'Too many requests, please try again later.',
