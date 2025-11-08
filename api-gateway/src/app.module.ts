@@ -32,23 +32,25 @@ import { UserModule } from './user/user.module';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        throttlers: [
-          {
-            name: 'general',
-            ttl: minutes(1),
-            limit: 100,
-          },
-        ],
-        storage: new ThrottlerStorageRedisService(
-          new Redis({
-            host: configService.get<string>('REDIS_HOST'),
-            port: Number(configService.get<string>('REDIS_PORT')),
-            password: configService.get<string>('REDIS_PASSWORD'),
-          }),
-        ),
-        errorMessage: 'Too many requests, please try again later.',
-      }),
+      useFactory: (configService: ConfigService) => {
+        return {
+          throttlers: [
+            {
+              name: 'general',
+              ttl: minutes(1),
+              limit: 100,
+            },
+          ],
+          storage: new ThrottlerStorageRedisService(
+            new Redis({
+              host: configService.get<string>('REDIS_HOST'),
+              port: Number(configService.get<string>('REDIS_PORT')),
+              password: configService.get<string>('REDIS_PASSWORD'),
+            }),
+          ),
+          errorMessage: 'Too many requests, please try again later.',
+        };
+      },
     }),
     UserModule,
     AuthModule,
