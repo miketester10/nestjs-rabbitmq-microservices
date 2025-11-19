@@ -1,13 +1,13 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from 'src/common/interfaces/jwt-payload.interface';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { JwtKey } from 'src/common/enums/cache-keys.enum';
 import { Request } from 'express';
 import { EncryptionService } from '../encryption.service';
+import { env } from 'src/config/env.schema';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -16,13 +16,12 @@ export class JwtRefreshStrategy extends PassportStrategy(
 ) {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly configService: ConfigService,
     private readonly encryptionService: EncryptionService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: <string>configService.get('JWT_REFRESH_SECRET'),
+      secretOrKey: env.JWT_REFRESH_SECRET,
       passReqToCallback: true,
     });
   }

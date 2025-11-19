@@ -19,11 +19,11 @@ import { Cache } from 'cache-manager';
 import { JwtKey, ResetPasswordKey } from 'src/common/enums/cache-keys.enum';
 import { EncryptionService } from './encryption.service';
 import { randomBytes } from 'crypto';
-import { ConfigService } from '@nestjs/config';
 import { EmailShape } from 'src/common/interfaces/email-shape.interface';
 import { resetPasswordTemplate } from 'src/email/templates/reset-password';
 import { ClientProxy } from '@nestjs/microservices';
 import { User } from 'src/user/entities/user.entity';
+import { env } from 'src/config/env.schema';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +37,6 @@ export class AuthService {
     private readonly jwtRefreshService: JwtRefreshService,
     private readonly jwt2faService: Jwt2faService,
     private readonly encryptionService: EncryptionService,
-    private readonly configService: ConfigService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<{
@@ -161,7 +160,7 @@ export class AuthService {
       const token = await this.generateToken(email);
 
       // Costruisci link per reset password
-      const baseUrl = this.configService.get<string>('BASE_URL_RESET_PASSWORD');
+      const baseUrl = env.BASE_URL_RESET_PASSWORD;
       const verificationLink = `${baseUrl}?token=${token}`;
 
       // Costruisci email

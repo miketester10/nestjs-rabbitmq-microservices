@@ -1,22 +1,20 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { env } from 'src/config/env.schema';
 
 @Module({
   imports: [
     ClientsModule.registerAsync([
       {
         name: 'EMAIL_SERVICE',
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: (configService: ConfigService) => {
-          const url = configService.get<string>('RABBITMQ_URL');
-          const queue = configService.get<string>('RABBITMQ_QUEUE');
+        useFactory: () => {
+          const url = env.RABBITMQ_URL;
+          const queue = env.RABBITMQ_QUEUE;
 
           return {
             transport: Transport.RMQ,
             options: {
-              urls: [url!],
+              urls: [url],
               queue: queue,
               queueOptions: { durable: true },
             },

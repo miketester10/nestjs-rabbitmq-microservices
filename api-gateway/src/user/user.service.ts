@@ -15,9 +15,9 @@ import { verificationEmailTemplate } from 'src/email/templates/verification-emai
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { randomBytes } from 'crypto';
-import { ConfigService } from '@nestjs/config';
 import { EmailVerifyKey } from 'src/common/enums/cache-keys.enum';
 import * as bcrypt from 'bcrypt';
+import { env } from 'src/config/env.schema';
 
 @Injectable()
 export class UserService {
@@ -28,7 +28,6 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @Inject('EMAIL_SERVICE') private readonly client: ClientProxy,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly configService: ConfigService,
   ) {}
 
   async findOne(email: string): Promise<User | null> {
@@ -76,7 +75,7 @@ export class UserService {
     const token = await this.generateToken(email);
 
     // Costruisci link di verifica
-    const baseUrl = this.configService.get<string>('BASE_URL_VERIFY_EMAIL');
+    const baseUrl = env.BASE_URL_VERIFY_EMAIL;
     const verificationLink = `${baseUrl}?token=${token}`;
 
     // Costruisci email

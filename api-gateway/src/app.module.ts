@@ -2,37 +2,32 @@ import { createKeyv } from '@keyv/redis';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { minutes, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from 'db/data-source';
 import Redis from 'ioredis';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { env } from './config/env.schema';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(dataSourceOptions),
     CacheModule.registerAsync({
       isGlobal: true,
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      useFactory: () => {
         return {
           stores: [
             createKeyv({
-              url: configService.get<string>('REDIS_URL'),
-              password: configService.get<string>('REDIS_PASSWORD'),
+              url: env.REDIS_URL,
+              password: env.REDIS_PASSWORD,
             }),
           ],
         };
       },
     }),
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      useFactory: () => {
         return {
           throttlers: [
             {
@@ -43,9 +38,9 @@ import { UserModule } from './user/user.module';
           ],
           storage: new ThrottlerStorageRedisService(
             new Redis({
-              host: configService.get<string>('REDIS_HOST'),
-              port: Number(configService.get<string>('REDIS_PORT')),
-              password: configService.get<string>('REDIS_PASSWORD'),
+              host: env.REDIS_HOST,
+              port: env.REDIS_PORT,
+              password: env.REDIS_PASSWORD,
             }),
           ),
           errorMessage: 'Too many requests, please try again later.',
