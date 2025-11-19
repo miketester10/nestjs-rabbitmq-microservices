@@ -42,10 +42,10 @@ const envSchema = z.object({
     .string()
     .trim()
     .nonempty('BASE_URL_RESET_PASSWORDs is required.'),
-  NODE_ENV: z.string().trim().nonempty('NODE_ENV is required.'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
 });
-
-type envType = z.infer<typeof envSchema>;
 
 const envParsed = envSchema.safeParse(process.env);
 
@@ -57,26 +57,5 @@ if (!envParsed.success) {
   throw new Error('Invalid environment variables');
 }
 
-export const env: envType = {
-  RABBITMQ_URL: envParsed.data.RABBITMQ_URL,
-  RABBITMQ_QUEUE: envParsed.data.RABBITMQ_QUEUE,
-  DB_HOST: envParsed.data.DB_HOST,
-  DB_PORT: envParsed.data.DB_PORT,
-  DB_USERNAME: envParsed.data.DB_USERNAME,
-  DB_PASSWORD: envParsed.data.DB_PASSWORD,
-  DB_NAME: envParsed.data.DB_NAME,
-  REDIS_URL: envParsed.data.REDIS_URL,
-  REDIS_HOST: envParsed.data.REDIS_HOST,
-  REDIS_PORT: envParsed.data.REDIS_PORT,
-  REDIS_PASSWORD: envParsed.data.REDIS_PASSWORD,
-  JWT_SECRET: envParsed.data.JWT_SECRET,
-  JWT_EXPIRES_IN: envParsed.data.JWT_EXPIRES_IN,
-  JWT_2FA_SECRET: envParsed.data.JWT_2FA_SECRET,
-  JWT_2FA_EXPIRES_IN: envParsed.data.JWT_2FA_EXPIRES_IN,
-  JWT_REFRESH_SECRET: envParsed.data.JWT_REFRESH_SECRET,
-  JWT_REFRESH_EXPIRES_IN: envParsed.data.JWT_REFRESH_EXPIRES_IN,
-  ENCRYPTION_KEY: envParsed.data.ENCRYPTION_KEY,
-  BASE_URL_VERIFY_EMAIL: envParsed.data.BASE_URL_VERIFY_EMAIL,
-  BASE_URL_RESET_PASSWORD: envParsed.data.BASE_URL_RESET_PASSWORD,
-  NODE_ENV: envParsed.data.NODE_ENV,
-};
+type envType = z.infer<typeof envSchema>;
+export const env: envType = envParsed.data;

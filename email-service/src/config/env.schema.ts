@@ -11,8 +11,6 @@ const envSchema = z.object({
   PASSWORD_APP: z.string().trim().nonempty('PASSWORD_APP is required.'),
 });
 
-type envType = z.infer<typeof envSchema>;
-
 const envParsed = envSchema.safeParse(process.env);
 
 if (!envParsed.success) {
@@ -23,11 +21,5 @@ if (!envParsed.success) {
   throw new Error('Invalid environment variables');
 }
 
-export const env: envType = {
-  RABBITMQ_URL: envParsed.data.RABBITMQ_URL,
-  RABBITMQ_QUEUE: envParsed.data.RABBITMQ_QUEUE,
-  HOST: envParsed.data.HOST,
-  PORT: envParsed.data.PORT,
-  USER_EMAIL: envParsed.data.USER_EMAIL,
-  PASSWORD_APP: envParsed.data.PASSWORD_APP,
-};
+type envType = z.infer<typeof envSchema>;
+export const env: envType = envParsed.data;
