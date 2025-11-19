@@ -42,6 +42,7 @@ const envSchema = z.object({
     .string()
     .trim()
     .nonempty('BASE_URL_RESET_PASSWORDs is required.'),
+  NODE_ENV: z.string().trim().nonempty('NODE_ENV is required.'),
 });
 
 type envType = z.infer<typeof envSchema>;
@@ -77,4 +78,5 @@ export const env: envType = {
   ENCRYPTION_KEY: envParsed.data.ENCRYPTION_KEY,
   BASE_URL_VERIFY_EMAIL: envParsed.data.BASE_URL_VERIFY_EMAIL,
   BASE_URL_RESET_PASSWORD: envParsed.data.BASE_URL_RESET_PASSWORD,
+  NODE_ENV: envParsed.data.NODE_ENV,
 };
