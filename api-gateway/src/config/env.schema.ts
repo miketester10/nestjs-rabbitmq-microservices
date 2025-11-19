@@ -41,7 +41,7 @@ const envSchema = z.object({
   BASE_URL_RESET_PASSWORD: z
     .string()
     .trim()
-    .nonempty('BASE_URL_RESET_PASSWORDs is required.'),
+    .nonempty('BASE_URL_RESET_PASSWORD is required.'),
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
