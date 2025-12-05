@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { queryClient } from "../main";
+import { authApi } from "../api/auth.api";
 
 interface User {
   id: number;
@@ -45,7 +46,8 @@ export const useAuthStore = create<AuthState>()(
           refreshToken,
         });
       },
-      logout: () => {
+      logout: async () => {
+        await authApi.logout();
         set({
           user: null,
           isAuthenticated: false,

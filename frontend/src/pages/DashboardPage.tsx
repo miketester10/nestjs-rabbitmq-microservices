@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { userApi, UserProfile } from "../api/user.api";
-import { authApi } from "../api/auth.api";
 import { useAuthStore } from "../store/auth.store";
 import Button from "../components/Button";
 import Disable2FAModal from "../components/Disable2FAModal";
@@ -34,16 +33,6 @@ export default function DashboardPage() {
       });
     }
   }, [profile, setUser]);
-
-  const logoutMutation = useMutation({
-    mutationFn: authApi.logout,
-  });
-
-  const handleLogout = async () => {
-    await logoutMutation.mutateAsync();
-    logout();
-    navigate("/login");
-  };
 
   // isLoading si attiva solo la prima volta che carichiamo i dati
   if (isLoading) {
@@ -84,7 +73,7 @@ export default function DashboardPage() {
                 <Button variant="secondary" onClick={() => refetch()} disabled={isFetching}>
                   {isFetching ? "Aggiornamento..." : "Aggiorna"}
                 </Button>
-                <Button variant="secondary" onClick={handleLogout}>
+                <Button variant="secondary" onClick={() => logout()}>
                   Logout
                 </Button>
               </div>
