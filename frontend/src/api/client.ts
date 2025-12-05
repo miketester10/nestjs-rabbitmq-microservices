@@ -7,14 +7,15 @@ import { useAuthStore } from "../store/auth.store";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 /**
- * Estrae il metodo logout dallo store Zustand per utilizzarlo negli interceptor.
+ * Funzione logout che accede allo store Zustand quando viene chiamata.
  *
- * Nota: usiamo `getState()` invece di `useAuthStore()` perché:
- * - `useAuthStore()` è un hook React e può essere usato solo dentro componenti React
+ * Nota: usiamo una funzione lazy invece di accedere direttamente a `getState()` perché:
+ * - Evita problemi di dipendenza circolare durante l'inizializzazione del modulo
  * - `getState()` è un metodo che può essere usato ovunque, anche fuori dai componenti
  * - Questo file è un modulo di configurazione axios, non un componente React
+ * - La funzione viene chiamata solo quando necessario (durante l'interceptor), quando lo store è già inizializzato
  */
-const { logout } = useAuthStore.getState();
+const logout = () => useAuthStore.getState().logout();
 
 /**
  * Interfaccia per la risposta ricevuta dall'endpoint refresh-token.
@@ -25,14 +26,6 @@ interface RefreshTokenResponse {
     accessToken: string;
     refreshToken: string;
   };
-}
-
-/**
- * Interfaccia che estennde InternalAxiosRequestConfig ed include
- * la proprietà _retry per evitare loop infiniti durante il refresh del token.
- */
-interface ExtendedInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
-  _retry?: boolean;
 }
 
 /**
@@ -80,8 +73,6 @@ apiClient.interceptors.request.use(
  *   3. Riprova la richiesta originale con il nuovo accessToken
  * - Se il refresh fallisce, viene eseguito il logout dell'utente.
  *
- * La proprietà _retry viene utilizzata per evitare loop infiniti nel caso
- * in cui anche il refresh token sia scaduto o invalido.
  */
 apiClient.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
@@ -89,14 +80,10 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error: AxiosError): Promise<AxiosResponse | AxiosError> => {
-    const originalRequest = error.config as ExtendedInternalAxiosRequestConfig;
+    const originalRequest = error.config as InternalAxiosRequestConfig;
 
-    // Verifica se l'errore è un 401 (Unauthorized) e se la richiesta non è già stata ritentata.
-    // La proprietà _retry evita loop infiniti nel caso in cui anche il refresh token sia scaduto.
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      // Marca la richiesta come già ritentata per evitare loop infiniti
-      originalRequest._retry = true;
-
+    // Verifica se l'errore è un 401 (Unauthorized).
+    if (error.response?.status === 401) {
       try {
         // Recupera refreshToken dal localStorage
         const refreshToken = localStorage.getItem("refreshToken");
@@ -135,7 +122,7 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Se l'errore non è un 401 o la richiesta è già stata ritentata, rigetta la promise con l'errore originale
+    // Se l'errore non è un 401, rigetta la promise con l'errore originale
     console.log("RESTITUISCE L ERRORE ORIGINALE");
     return Promise.reject(error);
   }

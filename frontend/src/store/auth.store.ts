@@ -12,8 +12,6 @@ interface User {
 
 interface AuthState {
   user: User | null;
-  accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
   setIsAuthenticated: (isAuth: boolean) => void;
   setUser: (user: User | null) => void;
@@ -25,8 +23,6 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
       setIsAuthenticated: (isAuth: boolean) => {
         set({ isAuthenticated: isAuth });
@@ -41,21 +37,22 @@ export const useAuthStore = create<AuthState>()(
         if (refreshToken) {
           localStorage.setItem("refreshToken", refreshToken);
         }
-        set({
-          accessToken,
-          refreshToken,
-        });
       },
       logout: async () => {
-        await authApi.logout();
-        set({
-          user: null,
-          isAuthenticated: false,
-        });
-        queryClient.clear();
-        useAuthStore.persist.clearStorage();
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        try {
+          await authApi.logout();
+        } catch (error) {
+          console.error(`Errore durante il logout: ${JSON.stringify(error)}`);
+        } finally {
+          set({
+            user: null,
+            isAuthenticated: false,
+          });
+          queryClient.clear();
+          useAuthStore.persist.clearStorage();
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+        }
       },
     }),
     {
