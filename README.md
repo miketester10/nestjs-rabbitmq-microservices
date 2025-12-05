@@ -8,6 +8,7 @@ This project demonstrates a modern microservices architecture with:
 
 - **API Gateway**: Centralized authentication and user management
 - **Email Service**: Asynchronous email processing via RabbitMQ
+- **Frontend**: React application with TypeScript, TanStack Query, and Tailwind CSS
 - **Secure Authentication**: JWT with refresh tokens and 2FA support
 - **Database**: PostgreSQL with TypeORM
 - **Caching**: Redis for session management and rate limiting
@@ -34,6 +35,23 @@ This project demonstrates a modern microservices architecture with:
 │ • Durability    │    │ • Sessions      │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
+
+### API Gateway Modules
+
+- **AuthModule**: Handles authentication, JWT tokens, 2FA setup/verification, password reset
+  - JWT Module: Standard JWT authentication
+  - JWT-2FA Module: Two-factor authentication tokens
+  - JWT-REFRESH Module: Refresh token management
+  - Encryption Service: AES encryption for sensitive data
+- **UserModule**: User registration, email verification, profile management
+- **EmailModule**: RabbitMQ client for sending emails asynchronously
+- **Common**: Shared utilities, decorators, filters, interceptors, interfaces
+
+### Email Service Modules
+
+- **EmailModule**: Processes email messages from RabbitMQ queue
+  - Email Controller: Receives messages via RabbitMQ
+  - Email Service: Sends emails using Nodemailer
 
 ## ✨ Features
 
@@ -81,6 +99,20 @@ This project demonstrates a modern microservices architecture with:
 - **PostgreSQL** - Primary database
 - **Redis** - Caching and session storage
 - **RabbitMQ** - Message broker
+- **Zod** - Schema validation for environment variables
+- **Nodemailer** - Email sending (Email Service)
+
+### Frontend
+
+- **React** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **TanStack Query** - Data fetching and caching
+- **React Hook Form** - Form management
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+- **Zustand** - State management with persistence
 
 ### Security & Auth
 
@@ -106,6 +138,34 @@ This project demonstrates a modern microservices architecture with:
 - **Redis** (v6+)
 - **RabbitMQ** (v3.8+)
 
+## 📁 Project Structure
+
+```
+nestjs-rabbitmq-microservices/
+├── backend/
+│   ├── api-gateway/          # API Gateway service
+│   │   ├── src/
+│   │   │   ├── auth/         # Authentication module
+│   │   │   ├── user/         # User management module
+│   │   │   ├── email/        # Email module (RabbitMQ client)
+│   │   │   ├── common/       # Shared utilities
+│   │   │   └── config/       # Configuration
+│   │   └── db/               # Database configuration
+│   └── email-service/        # Email microservice
+│       └── src/
+│           ├── email/        # Email processing
+│           ├── common/       # Shared interfaces
+│           └── config/       # Configuration
+├── frontend/                 # React frontend application
+│   └── src/
+│       ├── api/              # API client
+│       ├── components/       # React components
+│       ├── pages/            # Page components
+│       └── store/            # State management (Zustand)
+├── docker-compose.yml        # Docker services configuration
+└── README.md
+```
+
 ## 🚀 Installation
 
 1. **Clone the repository**
@@ -115,37 +175,51 @@ git clone https://github.com/miketester10/nestjs-rabbitmq-microservices.git
 cd nestjs-rabbitmq-microservices
 ```
 
-2. **Start infrastructure services**
+2. **Create Docker network (if needed)**
+
+```bash
+docker network create backend
+```
+
+3. **Start infrastructure services**
 
 ```bash
 docker compose up -d
 ```
 
-3. **Install dependencies**
+This will start:
+
+- **PostgreSQL** on port `5432`
+- **Redis** on port `6379`
+- **RabbitMQ** on port `5672` (Management UI on port `15672`)
+
+**Note**: The `docker-compose.yml` uses an external network named `backend`. If it doesn't exist, create it with the command above.
+
+4. **Install dependencies**
 
 ```bash
 # API Gateway
-cd api-gateway
+cd backend/api-gateway
 npm install
 
 # Email Service
 cd ../email-service
 npm install
+
+# Frontend
+cd ../../frontend
+npm install
 ```
 
-4. **Environment Configuration**
+5. **Environment Configuration**
 
-```bash
-# Copy environment files
-cp api-gateway/.env.example api-gateway/.env
-cp email-service/.env.example email-service/.env
-```
+Create `.env` files in each service directory with the required variables (see Configuration section below).
 
 ## ⚙️ Configuration
 
 ### Environment Variables
 
-#### API Gateway (.env)
+#### API Gateway (backend/api-gateway/.env)
 
 ```env
 # Database
@@ -163,8 +237,10 @@ REDIS_URL=redis://localhost:6379
 
 # JWT
 JWT_SECRET=your_jwt_secret
-JWT_REFRESH_SECRET=your_refresh_secret
 JWT_EXPIRES_IN=15m
+JWT_2FA_SECRET=your_jwt_2fa_secret
+JWT_2FA_EXPIRES_IN=2m
+JWT_REFRESH_SECRET=your_refresh_secret
 JWT_REFRESH_EXPIRES_IN=7d
 
 # Encryption
@@ -174,31 +250,69 @@ ENCRYPTION_KEY=your_encryption_key
 RABBITMQ_URL=amqp://localhost:5672
 RABBITMQ_QUEUE=email_queue
 
-# Email URLs
-BASE_URL_VERIFY_EMAIL=http://frontend-url.it/users/verify-email
-BASE_URL_RESET_PASSWORD=http://frontend-url.it/auth/reset-password
+# Email URLs (Frontend URLs)
+BASE_URL_VERIFY_EMAIL=http://localhost:5173/verify-email
+BASE_URL_RESET_PASSWORD=http://localhost:5173/reset-password
 
 # Server
 PORT=3000
 NODE_ENV=development
 ```
 
-#### Email Service (.env)
+#### Email Service (backend/email-service/.env)
 
 ```env
 # RabbitMQ
 RABBITMQ_URL=amqp://localhost:5672
 RABBITMQ_QUEUE=email_queue
 
-# Email Configuration
+# Email Configuration (SMTP)
 HOST=smtp.gmail.com
 PORT=587
 USER_EMAIL=your_email@gmail.com
 PASSWORD_APP=your_app_password
-
-# Server
-NODE_ENV=development
 ```
+
+#### Frontend (frontend/.env)
+
+```env
+# API Gateway URL
+VITE_API_URL=http://localhost:3000
+```
+
+**Note**: The frontend uses Vite's proxy configuration to forward `/api` requests to the API Gateway. The proxy is configured in `vite.config.ts`.
+
+## 🌐 Frontend Application
+
+The React frontend provides a complete user interface for all authentication and user management features.
+
+### Access the Frontend
+
+- **Frontend**: http://localhost:5173
+
+### Frontend Features
+
+- ✅ User registration and login
+- ✅ Email verification
+- ✅ Password reset flow
+- ✅ Two-factor authentication setup and verification
+- ✅ User profile dashboard
+- ✅ Automatic token refresh
+- ✅ Protected routes with React Router
+- ✅ Persistent authentication state (Zustand)
+- ✅ Automatic API request retry on 401 errors
+- ✅ Form validation with React Hook Form
+
+### Frontend Pages
+
+- `/login` - User login page
+- `/register` - User registration page
+- `/verify-email` - Email verification page
+- `/forgot-password` - Password reset request page
+- `/reset-password` - Password reset page
+- `/2fa/setup` - Two-factor authentication setup page
+- `/dashboard` - User dashboard (protected)
+- `*` - 404 Not Found page
 
 ## 📚 API Documentation
 
@@ -279,10 +393,12 @@ curl -X POST http://localhost:3000/auth/2fa/verify \
 
 ### JWT Implementation
 
-- **Access Token**: Short-lived (1 hour / 2 minutes for verify 2FA code)
-- **Refresh Token**: Long-lived (7 days) with rotation
-- **Token Encryption**: Refresh tokens encrypted in Redis
+- **Access Token**: Short-lived (configurable via `JWT_EXPIRES_IN`, default 15 minutes)
+- **2FA Token**: Very short-lived (configurable via `JWT_2FA_EXPIRES_IN`, default 2 minutes)
+- **Refresh Token**: Long-lived (configurable via `JWT_REFRESH_EXPIRES_IN`, default 7 days) with rotation
+- **Token Storage**: Refresh tokens stored in Redis
 - **Automatic Invalidation**: Tokens invalidated on logout
+- **Automatic Refresh**: Frontend automatically refreshes tokens on 401 errors
 
 ### Two-Factor Authentication
 
@@ -293,10 +409,11 @@ curl -X POST http://localhost:3000/auth/2fa/verify \
 
 ### Rate Limiting
 
-- **Global Rate Limit**: 100 requests/minute
+- **Global Rate Limit**: 100 requests/minute (configurable via ThrottlerModule)
 - **Auth Endpoints**: 4 requests/minute
 - **Password Reset**: 1 request/minute
-- **Redis-based**: Distributed rate limiting
+- **Email Verification Resend**: 1 request/minute
+- **Redis-based**: Distributed rate limiting with `@nest-lab/throttler-storage-redis`
 
 ## 🛠️ Development
 
@@ -304,13 +421,26 @@ curl -X POST http://localhost:3000/auth/2fa/verify \
 
 ```bash
 # Terminal 1 - API Gateway
-cd api-gateway
+cd backend/api-gateway
 npm run start:dev
 
 # Terminal 2 - Email Service
-cd email-service
+cd backend/email-service
 npm run start:dev
+
+# Terminal 3 - Frontend
+cd frontend
+npm run dev
 ```
+
+**Services will be available at:**
+
+- **API Gateway**: http://localhost:3000
+- **Swagger UI**: http://localhost:3000/docs
+- **Frontend**: http://localhost:5173
+- **RabbitMQ Management**: http://localhost:15672 (guest/guest)
+
+The frontend will proxy API requests from `/api/*` to the API Gateway at `http://localhost:3000`.
 
 ## 🚀 Deployment
 
@@ -357,5 +487,7 @@ docker compose down
 - [TypeORM](https://typeorm.io/) - Object-Relational Mapping
 - [RabbitMQ](https://www.rabbitmq.com/) - Message broker
 - [Redis](https://redis.io/) - In-memory data store
-
-**Built with ❤️ using NestJS and TypeScript**
+- [React](https://react.dev/) - UI library
+- [Vite](https://vitejs.dev/) - Build tool
+- [TanStack Query](https://tanstack.com/query) - Data fetching
+- [Zustand](https://zustand-demo.pmnd.rs/) - State management
