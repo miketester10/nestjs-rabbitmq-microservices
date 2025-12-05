@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from 'src/user/user.service';
@@ -52,7 +51,7 @@ export class AuthService {
 
     // Verifica se l'utente è verificato
     if (!user.isVerified)
-      throw new UnauthorizedException(
+      throw new BadRequestException(
         'Account non verificato. Completare la verifica email per accedere.',
       );
 
@@ -223,12 +222,14 @@ export class AuthService {
 
     if (!user) throw new NotFoundException('Utente non trovato.');
 
-    // Se 2FA deve essere abilitato
+    // Se il metodo validateOtp viene chiamato con require2faEnabled, verichiamo che l'utente abbia 2FA abilitato
+    // altriementi lanciamo un errore
     if (options.require2faEnabled && !user.is2faEnabled) {
       throw new BadRequestException('2FA non è abilitato per questo utente.');
     }
 
-    // Se 2FA deve essere disabilitato
+    // Se il metodo validateOtp viene chiamato con require2faDisabled, verichiamo che l'utente abbia 2FA disabilitato
+    // altriementi lanciamo un errore
     if (options.require2faDisabled && user.is2faEnabled) {
       throw new BadRequestException('2FA è già abilitata per questo utente.');
     }
@@ -246,7 +247,7 @@ export class AuthService {
       window: 1,
     });
 
-    if (!verified) throw new UnauthorizedException('Codice OTP non valido.');
+    if (!verified) throw new BadRequestException('Codice OTP non valido.');
 
     return user;
   }
