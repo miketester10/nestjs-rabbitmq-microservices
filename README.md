@@ -71,6 +71,7 @@ This project demonstrates a modern microservices architecture with:
 - Profile management
 - Password reset functionality
 - Account verification system
+- Account deletion with confirmation email
 
 ### 📧 Email System
 
@@ -78,6 +79,7 @@ This project demonstrates a modern microservices architecture with:
 - HTML email templates
 - Email verification
 - Password reset emails
+- Account deletion confirmation emails
 - Queue-based processing
 
 ### 🛡️ Security Features
@@ -295,8 +297,10 @@ The React frontend provides a complete user interface for all authentication and
 - ✅ User registration and login
 - ✅ Email verification
 - ✅ Password reset flow
-- ✅ Two-factor authentication setup and verification
+- ✅ 2FA authentication setup and verification
+- ✅ 2FA verification modal during login (for users with 2FA enabled)
 - ✅ User profile dashboard
+- ✅ Account deletion with confirmation modal
 - ✅ Automatic token refresh
 - ✅ Protected routes with React Router
 - ✅ Persistent authentication state (Zustand)
@@ -343,6 +347,7 @@ Once the application is running, access the interactive API documentation at:
 - `GET /users/verify-email` - Verify email address
 - `POST /users/resend-email-verification` - Resend verification email
 - `GET /users/profile` - Get user profile
+- `DELETE /users/profile` - Delete user account
 
 ## 💡 Usage Examples
 
@@ -389,6 +394,13 @@ curl -X POST http://localhost:3000/auth/2fa/verify \
   }'
 ```
 
+### Delete Account
+
+```bash
+curl -X DELETE http://localhost:3000/users/profile \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
 ## 🔒 Security Features
 
 ### JWT Implementation
@@ -406,6 +418,7 @@ curl -X POST http://localhost:3000/auth/2fa/verify \
 - **QR Code Generation**: Easy setup process
 - **Encrypted Storage**: 2FA secrets encrypted in database
 - **Backup Codes**: Recovery mechanism
+- **Login Flow**: When users with 2FA enabled log in, they receive a temporary 2FA token and must verify their OTP code via a modal before accessing the dashboard
 
 ### Rate Limiting
 
