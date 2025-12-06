@@ -15,7 +15,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
  * - Questo file è un modulo di configurazione axios, non un componente React
  * - La funzione viene chiamata solo quando necessario (durante l'interceptor), quando lo store è già inizializzato
  */
-const logout = () => useAuthStore.getState().logout();
+const logout = (options?: { onlyLocal: boolean }) => useAuthStore.getState().logout(options);
 
 /**
  * Interfaccia per la risposta ricevuta dall'endpoint refresh-token.
@@ -82,6 +82,13 @@ apiClient.interceptors.response.use(
   async (error: AxiosError): Promise<AxiosResponse | AxiosError> => {
     const originalRequest = error.config as InternalAxiosRequestConfig;
 
+    // Se l'errore viene dall'endpoint /auth/logout, eseguire solo logout() locale per evitare loop infinito.
+    if (originalRequest.url?.includes("/auth/logout")) {
+      console.warn("DOVREBBE ANDARE AL LOGIN ED ESEGUIRE SOLO IL LOGOUT LOCALE");
+      logout({ onlyLocal: true });
+      return Promise.reject(error);
+    }
+
     // Verifica se l'errore è un 401 (Unauthorized).
     if (error.response?.status === 401) {
       try {
@@ -117,7 +124,7 @@ apiClient.interceptors.response.use(
         // Se il refresh fallisce, esegue il logout.
         // Questo può accadere se anche il refresh token è scaduto o invalido, oppure per errore Too Many Requests all'endpoint di refresh-token.
         logout();
-        console.warn("DOVREBBE ANDARE AL LOGIN PERCHE IL REFRESH TOKEN E' SCADUTO/INVALIDO");
+        console.warn("DOVREBBE ANDARE AL LOGIN PERCHE IL REFRESH TOKEN E' SCADUTO/INVALIDO OPPURE TOO MANY REQUEST");
         return Promise.reject(refreshError);
       }
     }

@@ -16,7 +16,7 @@ interface AuthState {
   setIsAuthenticated: (isAuth: boolean) => void;
   setUser: (user: User | null) => void;
   setTokens: (accessToken: string, refreshToken?: string) => void;
-  logout: () => void;
+  logout: (options?: { onlyLocal: boolean }) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -38,18 +38,22 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem("refreshToken", refreshToken);
         }
       },
-      logout: async () => {
+      logout: async (options?: { onlyLocal: boolean }) => {
+        const onlyLocal = options?.onlyLocal;
         try {
-          await authApi.logout();
+          if (!onlyLocal) await authApi.logout();
         } catch (error) {
           console.error(`Errore durante il logout: ${JSON.stringify(error)}`);
         } finally {
+          // Aggiorna lo store
           set({
             user: null,
             isAuthenticated: false,
           });
+          // Pulisce queryClient
           queryClient.clear();
-          useAuthStore.persist.clearStorage();
+          // Pulisce localStorage
+          useAuthStore.persist.clearStorage(); // elimina "auth-storage" dal localStorage
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
         }
