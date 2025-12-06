@@ -8,6 +8,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import Setup2FAPage from "./pages/Setup2FAPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ThemeToggle from "./components/ThemeToggle";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -22,6 +23,9 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
+      <div className="fixed bottom-4 left-4 z-[9999]">
+        <ThemeToggle />
+      </div>
       <Routes>
         <Route
           path="/login"

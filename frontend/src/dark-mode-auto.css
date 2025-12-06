@@ -1,0 +1,116 @@
+/* 
+ * File CSS che aggiunge automaticamente le varianti dark
+ * Non modifica i CSS esistenti, aggiunge solo le regole dark mode
+ * Usa valori Tailwind diretti per evitare problemi con @apply
+ */
+
+/* Background colors - applica automaticamente dark mode alle classi esistenti */
+.dark .bg-gray-50 {
+  background-color: rgb(17 24 39) !important; /* gray-900 */
+}
+
+.dark .bg-gray-200 {
+  background-color: rgb(31 41 55) !important; /* gray-800 */
+}
+
+.dark .bg-white {
+  background-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+/* Text colors */
+.dark .text-gray-900 {
+  color: rgb(243 244 246) !important; /* gray-100 */
+}
+
+.dark .text-gray-800 {
+  color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+.dark .text-gray-700 {
+  color: rgb(209 213 219) !important; /* gray-300 */
+}
+
+.dark .text-gray-600 {
+  color: rgb(156 163 175) !important; /* gray-400 */
+}
+
+/* Borders */
+.dark .border-gray-200 {
+  border-color: rgb(75 85 99) !important; /* gray-600 */
+}
+
+/* Input automatic dark mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input:not([type]) {
+  background-color: rgb(55 65 81) !important; /* gray-700 */
+  color: white !important;
+  border-color: rgb(75 85 99) !important; /* gray-600 */
+}
+
+/* Input con errore - mantiene il bordo rosso anche in dark mode */
+.dark input[type="text"].border-red-500,
+.dark input[type="email"].border-red-500,
+.dark input[type="password"].border-red-500,
+.dark input[type="number"].border-red-500,
+.dark input.border-red-500 {
+  border-color: rgb(239 68 68) !important; /* red-500 */
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark input:not([type]):focus {
+  background-color: rgb(55 65 81) !important; /* gray-700 */
+  color: white !important;
+}
+
+/* Input con errore in focus - mantiene il bordo rosso */
+.dark input[type="text"].border-red-500:focus,
+.dark input[type="email"].border-red-500:focus,
+.dark input[type="password"].border-red-500:focus,
+.dark input[type="number"].border-red-500:focus,
+.dark input.border-red-500:focus {
+  border-color: rgb(239 68 68) !important; /* red-500 */
+}
+
+/* Links */
+.dark .text-blue-600 {
+  color: rgb(147 197 253) !important; /* blue-300 */
+}
+
+.dark .hover\:text-blue-500:hover {
+  color: rgb(191 219 254) !important; /* blue-200 */
+}
+
+/* Error/Success messages */
+.dark .bg-red-50 {
+  background-color: rgba(127, 29, 29, 0.3) !important;
+  border-color: rgb(153 27 27) !important; /* red-800 */
+}
+
+.dark .text-red-700 {
+  color: rgb(252 165 165) !important; /* red-300 */
+}
+
+.dark .text-red-600 {
+  color: rgb(248 113 113) !important; /* red-400 */
+}
+
+.dark .bg-green-50 {
+  background-color: rgba(20, 83, 45, 0.3) !important;
+  border-color: rgb(22 101 52) !important; /* green-800 */
+}
+
+.dark .text-green-700 {
+  color: rgb(134 239 172) !important; /* green-300 */
+}
+
+/* Shadow e overlay */
+.dark .bg-gray-600 {
+  background-color: rgba(17, 24, 39, 0.75) !important; /* gray-900 con opacità */
+}
+
