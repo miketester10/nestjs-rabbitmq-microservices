@@ -7,9 +7,11 @@ import { Sun, Moon } from "lucide-react";
  * Toggle circolare con ombreggiatura, sempre visibile sopra tutto
  */
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
-  const isDark = theme === "dark";
+  // Usa resolvedTheme per ottenere il tema effettivo (dark/light) anche quando theme è "system"
+  // resolvedTheme sarà "dark" o "light" a seconda del tema effettivo del sistema
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
