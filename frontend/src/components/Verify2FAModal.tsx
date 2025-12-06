@@ -16,7 +16,7 @@ interface Verify2FAModalProps {
 
 export default function Verify2FAModal({ isOpen, onClose }: Verify2FAModalProps) {
   const navigate = useNavigate();
-  const { logout, setTokens, setIsAuthenticated } = useAuthStore();
+  const { setTokens, setIsAuthenticated } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -49,7 +49,6 @@ export default function Verify2FAModal({ isOpen, onClose }: Verify2FAModalProps)
   const handleClose = () => {
     setError(null);
     reset();
-    logout();
     onClose();
   };
 

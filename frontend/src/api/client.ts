@@ -1,9 +1,7 @@
 import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "../store/auth.store";
 
-/**
- * URL base dell'API backend.
- */
+// URL base dell'API backend.
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 /**
@@ -87,6 +85,11 @@ apiClient.interceptors.response.use(
       console.warn("DOVREBBE ANDARE AL LOGIN ED ESEGUIRE SOLO IL LOGOUT LOCALE");
       logout({ onlyLocal: true });
       return Promise.reject(error);
+    } else if (originalRequest.url?.includes("/auth/2fa/verify")) {
+      // Se l'errore viene dall'endpoint /auth/2fa/verify, eseguire solo logout() locale per evitare loop infinito.
+      console.log("DOVREBBE RESTITUIRE L'ERRORE ORIGINALE ED ESEGUIRE SOLO IL LOGOUT LOCALE");
+      logout({ onlyLocal: true });
+      return Promise.reject(error);
     }
 
     // Verifica se l'errore è un 401 (Unauthorized).
@@ -127,10 +130,10 @@ apiClient.interceptors.response.use(
         console.warn("DOVREBBE ANDARE AL LOGIN PERCHE IL REFRESH TOKEN E' SCADUTO/INVALIDO OPPURE TOO MANY REQUEST");
         return Promise.reject(refreshError);
       }
+    } else {
+      // Se l'errore non è un 401, rigetta la promise con l'errore originale
+      console.log("DOVREBBE RESTITUIRE L'ERRORE ORIGINALE");
+      return Promise.reject(error);
     }
-
-    // Se l'errore non è un 401, rigetta la promise con l'errore originale
-    console.log("RESTITUISCE L ERRORE ORIGINALE");
-    return Promise.reject(error);
   }
 );
