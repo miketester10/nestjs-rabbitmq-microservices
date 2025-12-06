@@ -2,6 +2,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { EmailService } from './email.service';
 import { EmailShape } from 'src/common/interfaces/email-shape.interface';
+import { Event } from 'src/common/enums/event.enum';
 
 @Controller() // I controller nei microservizi non hanno bisogno di un path
 export class EmailController {
@@ -9,21 +10,21 @@ export class EmailController {
 
   constructor(private readonly emailService: EmailService) {}
 
-  @EventPattern('user.created')
+  @EventPattern(Event.USER_CREATED)
   async handleUserCreated(@Payload() data: EmailShape) {
-    this.logger.debug(`Evento [user_created] ricevuto`);
+    this.logger.debug(`Evento [${Event.USER_CREATED}] ricevuto`);
     await this.emailService.sendEmail(data);
   }
 
-  @EventPattern('user.deleted')
+  @EventPattern(Event.USER_DELETED)
   async handleUserDeleted(@Payload() data: EmailShape) {
-    this.logger.debug(`Evento [user_deleted] ricevuto`);
+    this.logger.debug(`Evento [${Event.USER_DELETED}] ricevuto`);
     await this.emailService.sendEmail(data);
   }
 
-  @EventPattern('forgot.password')
+  @EventPattern(Event.FORGOT_PASSWORD)
   async handleForgotPassword(@Payload() data: EmailShape) {
-    this.logger.debug(`Evento [forgot_password] ricevuto`);
+    this.logger.debug(`Evento [${Event.FORGOT_PASSWORD}] ricevuto`);
     await this.emailService.sendEmail(data);
   }
 }

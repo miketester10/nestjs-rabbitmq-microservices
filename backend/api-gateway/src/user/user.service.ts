@@ -19,6 +19,7 @@ import { EmailVerifyKey } from 'src/common/enums/cache-keys.enum';
 import * as bcrypt from 'bcrypt';
 import { env } from 'src/config/env.schema';
 import { deleteAccountTemplate } from 'src/email/templates/delete-account';
+import { Event } from 'src/common/enums/event.enum';
 
 @Injectable()
 export class UserService {
@@ -87,8 +88,8 @@ export class UserService {
     };
 
     // Invia email tramite il microservizio via RabbitMQ
-    this.logger.debug(`Evento [user_created] emesso`);
-    this.client.emit('user.created', emailShape);
+    this.client.emit(Event.USER_CREATED, emailShape);
+    this.logger.debug(`Evento [${Event.USER_CREATED}] emesso`);
   }
 
   async resendVerificationEmail(email: string): Promise<string> {
@@ -156,8 +157,8 @@ export class UserService {
     };
 
     // Invia email tramite il microservizio via RabbitMQ
-    this.logger.debug(`Evento [user_deleted] emesso`);
-    this.client.emit('user.deleted', emailShape);
+    this.client.emit(Event.USER_DELETED, emailShape);
+    this.logger.debug(`Evento [${Event.USER_DELETED}] emesso`);
   }
 
   private async generateToken(email: string): Promise<string> {

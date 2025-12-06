@@ -23,6 +23,7 @@ import { resetPasswordTemplate } from 'src/email/templates/reset-password';
 import { ClientProxy } from '@nestjs/microservices';
 import { User } from 'src/user/entities/user.entity';
 import { env } from 'src/config/env.schema';
+import { Event } from 'src/common/enums/event.enum';
 
 @Injectable()
 export class AuthService {
@@ -170,8 +171,8 @@ export class AuthService {
       };
 
       // Invia email tramite il microservizio via RabbitMQ
-      this.logger.debug(`Evento [forgot_password] emesso`);
-      this.client.emit('forgot.password', emailShape);
+      this.client.emit(Event.FORGOT_PASSWORD, emailShape);
+      this.logger.debug(`Evento [${Event.FORGOT_PASSWORD}] emesso`);
     } else {
       // Logga un avviso se l'utente non esiste
       this.logger.warn(`Nessun account trovato con email ${email}.`);
