@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { TokenDto } from './dto/token.dto';
@@ -36,5 +44,12 @@ export class UserController {
   @Get('profile')
   async getProfile(@CurrentUser() payload: JwtPayload) {
     return this.userService.getProfile(payload.email);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('profile')
+  async deleteAccount(@CurrentUser() payload: JwtPayload) {
+    return this.userService.deleteAccount(payload.email);
   }
 }

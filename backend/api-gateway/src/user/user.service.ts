@@ -137,6 +137,12 @@ export class UserService {
     return 'Email verificata con successo.';
   }
 
+  async deleteAccount(email: string): Promise<void> {
+    const user = await this.findOne(email);
+    if (!user) throw new NotFoundException('Utente non trovato.');
+    await this.userRepository.delete(user.id);
+  }
+
   private async generateToken(email: string): Promise<string> {
     // Controlla se esiste un token vecchio e lo cancella
     const oldToken = await this.cacheManager.get<string>(
