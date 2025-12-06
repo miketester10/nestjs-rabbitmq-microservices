@@ -42,18 +42,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Crea un nuovo account</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Oppure{" "}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              accedi al tuo account esistente
-            </Link>
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 space-y-8">
+          <div>
+            <h2 className="text-center text-3xl font-extrabold text-gray-900">Crea un nuovo account</h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Oppure{" "}
+              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                accedi al tuo account esistente
+              </Link>
+            </p>
+          </div>
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
           {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>}
           <div className="space-y-4">
@@ -120,6 +121,7 @@ export default function RegisterPage() {
             </Button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

@@ -67,14 +67,13 @@ export default function Setup2FAPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Configura Autenticazione a Due Fattori</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">Scansiona il QR code con un'app di autenticazione come Google Authenticator</p>
-        </div>
-
-        <div className="bg-white shadow rounded-lg p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 space-y-8">
+          <div>
+            <h2 className="text-center text-3xl font-extrabold text-gray-900">Configura Autenticazione a Due Fattori</h2>
+            <p className="mt-2 text-center text-sm text-gray-600">Scansiona il QR code con un'app di autenticazione come Google Authenticator</p>
+          </div>
           {queryError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">Errore durante il caricamento della configurazione 2FA</div>}
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
           {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
