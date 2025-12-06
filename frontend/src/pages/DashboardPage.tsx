@@ -5,11 +5,13 @@ import { userApi, UserProfile } from "../api/user.api";
 import { useAuthStore } from "../store/auth.store";
 import Button from "../components/Button";
 import Disable2FAModal from "../components/Disable2FAModal";
+import DeleteAccountModal from "../components/DeleteAccountModal";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { logout, setUser, isAuthenticated } = useAuthStore();
   const [isDisable2FAModalOpen, setIsDisable2FAModalOpen] = useState(false);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
 
   const {
     data: profile,
@@ -76,6 +78,9 @@ export default function DashboardPage() {
                 <Button variant="secondary" onClick={() => logout()}>
                   Logout
                 </Button>
+                <Button variant="danger" onClick={() => setIsDeleteAccountModalOpen(true)}>
+                  Elimina Account
+                </Button>
               </div>
             </div>
           </div>
@@ -122,6 +127,7 @@ export default function DashboardPage() {
           </div>
         </main>
         <Disable2FAModal isOpen={isDisable2FAModalOpen} onClose={() => setIsDisable2FAModalOpen(false)} />
+        <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onClose={() => setIsDeleteAccountModalOpen(false)} />
       </div>
     </>
   );
