@@ -15,6 +15,12 @@ export class EmailController {
     await this.emailService.sendEmail(data);
   }
 
+  @EventPattern('user.deleted')
+  async handleUserDeleted(@Payload() data: EmailShape) {
+    this.logger.debug(`Evento [user_deleted] ricevuto`);
+    await this.emailService.sendEmail(data);
+  }
+
   @EventPattern('forgot.password')
   async handleForgotPassword(@Payload() data: EmailShape) {
     this.logger.debug(`Evento [forgot_password] ricevuto`);

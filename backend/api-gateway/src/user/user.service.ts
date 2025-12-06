@@ -18,6 +18,7 @@ import { randomBytes } from 'crypto';
 import { EmailVerifyKey } from 'src/common/enums/cache-keys.enum';
 import * as bcrypt from 'bcrypt';
 import { env } from 'src/config/env.schema';
+import { deleteAccountTemplate } from 'src/email/templates/delete-account';
 
 @Injectable()
 export class UserService {
@@ -141,6 +142,22 @@ export class UserService {
     const user = await this.findOne(email);
     if (!user) throw new NotFoundException('Utente non trovato.');
     await this.userRepository.delete(user.id);
+
+    // Invia email di conferma eliminazione account
+    this.sendDeleteAccountEmail(user.firstName, user.email);
+  }
+
+  sendDeleteAccountEmail(firstname: string, email: string): void {
+    // Costruisci email
+    const emailShape: EmailShape = {
+      recipients: [email],
+      subject: 'Conferma eliminazione account',
+      html: deleteAccountTemplate(firstname),
+    };
+
+    // Invia email tramite il microservizio via RabbitMQ
+    this.logger.debug(`Evento [user_deleted] emesso`);
+    this.client.emit('user.deleted', emailShape);
   }
 
   private async generateToken(email: string): Promise<string> {
