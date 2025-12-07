@@ -71,6 +71,7 @@ This project demonstrates a modern microservices architecture with:
 - Profile management
 - Password reset functionality
 - Account verification system
+- Resend verification email (via modal when account is not verified)
 - Account deletion with confirmation email
 
 ### 📧 Email System
@@ -111,6 +112,8 @@ This project demonstrates a modern microservices architecture with:
 - **Vite** - Build tool and dev server
 - **TanStack Query** - Data fetching and caching
 - **React Hook Form** - Form management
+- **Zod** - Schema validation for forms
+- **@hookform/resolvers** - React Hook Form integration with Zod
 - **Tailwind CSS** - Utility-first CSS framework
 - **React Router** - Client-side routing
 - **Axios** - HTTP client
@@ -165,6 +168,7 @@ nestjs-rabbitmq-microservices/
 │       ├── api/              # API client
 │       ├── components/       # React components
 │       ├── pages/            # Page components
+│       ├── schemas/          # Zod validation schemas
 │       ├── store/            # State management (Zustand)
 │       ├── index.css         # Global styles
 │       └── dark-mode-auto.css # Automatic dark mode styles
@@ -296,6 +300,15 @@ The React frontend provides a complete user interface for all authentication and
 
 - **Frontend**: http://localhost:5173
 
+### Form Validation
+
+The frontend uses **Zod** for schema-based form validation integrated with React Hook Form:
+- **Centralized schemas** - All validation rules defined in `src/schemas/validation.schemas.ts`
+- **Type-safe forms** - TypeScript types automatically inferred from Zod schemas
+- **Consistent validation** - Same validation rules across all forms (register, login, reset password, etc.)
+- **Real-time validation** - Instant feedback on user input
+- **No DTO duplication** - Single source of truth for form data types
+
 ### Dark Mode
 
 The frontend includes a fully functional dark mode feature:
@@ -309,6 +322,7 @@ The frontend includes a fully functional dark mode feature:
 
 - ✅ User registration and login
 - ✅ Email verification
+- ✅ Resend verification email modal (when account is not verified)
 - ✅ Password reset flow
 - ✅ 2FA authentication setup and verification
 - ✅ 2FA verification modal during login (for users with 2FA enabled)
@@ -318,7 +332,9 @@ The frontend includes a fully functional dark mode feature:
 - ✅ Protected routes with React Router
 - ✅ Persistent authentication state (Zustand)
 - ✅ Automatic API request retry on 401 errors
-- ✅ Form validation with React Hook Form
+- ✅ Form validation with Zod and React Hook Form (zodResolver)
+- ✅ Type-safe form validation with inferred TypeScript types
+- ✅ Centralized validation schemas (single source of truth)
 - ✅ Dark mode with system preference detection
 - ✅ Theme toggle with persistent storage
 
@@ -519,3 +535,4 @@ docker compose down
 - [Vite](https://vitejs.dev/) - Build tool
 - [TanStack Query](https://tanstack.com/query) - Data fetching
 - [Zustand](https://zustand-demo.pmnd.rs/) - State management
+- [Zod](https://zod.dev/) - Schema validation
