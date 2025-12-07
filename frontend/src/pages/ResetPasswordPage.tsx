@@ -57,8 +57,13 @@ export default function ResetPasswordPage() {
         <div className="max-w-md w-full">
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Token Non Valido</h2>
-              <p className="text-sm text-gray-600 mb-4">Il token di reset password non è valido o è scaduto.</p>
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2 className="mt-4 text-xl font-semibold text-gray-900">Token Non Valido</h2>
+              <p className="mt-2 text-sm text-gray-600 mb-4">Il token di reset password non è valido o è scaduto.</p>
               <Button onClick={() => navigate("/forgot-password")} variant="primary">
                 Richiedi Nuovo Link
               </Button>
@@ -70,7 +75,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 space-y-8">
           <div>
@@ -78,38 +83,38 @@ export default function ResetPasswordPage() {
             <p className="mt-2 text-center text-sm text-gray-600">Inserisci la tua nuova password</p>
           </div>
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
-          {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>}
-          <div className="space-y-4">
-            <Input
-              label="Nuova Password"
-              type="password"
-              {...register("password", {
-                required: "Password obbligatoria",
-                minLength: {
-                  value: 6,
-                  message: "La password deve essere di almeno 6 caratteri",
-                },
-              })}
-              error={errors.password?.message}
-            />
-            <Input
-              label="Conferma Password"
-              type="password"
-              {...register("confirmPassword", {
-                required: "Conferma password obbligatoria",
-                validate: (value) => value === password || "Le password non corrispondono",
-              })}
-              error={errors.confirmPassword?.message}
-            />
-          </div>
+            {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+            {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>}
+            <div className="space-y-4">
+              <Input
+                label="Nuova Password"
+                type="password"
+                {...register("password", {
+                  required: "Password obbligatoria",
+                  minLength: {
+                    value: 6,
+                    message: "La password deve essere di almeno 6 caratteri",
+                  },
+                })}
+                error={errors.password?.message}
+              />
+              <Input
+                label="Conferma Password"
+                type="password"
+                {...register("confirmPassword", {
+                  required: "Conferma password obbligatoria",
+                  validate: (value) => value === password || "Le password non corrispondono",
+                })}
+                error={errors.confirmPassword?.message}
+              />
+            </div>
 
-          <div>
-            <Button type="submit" className="w-full" isLoading={resetPasswordMutation.isPending}>
-              Reset Password
-            </Button>
-          </div>
-        </form>
+            <div>
+              <Button type="submit" className="w-full" isLoading={resetPasswordMutation.isPending}>
+                Reset Password
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
