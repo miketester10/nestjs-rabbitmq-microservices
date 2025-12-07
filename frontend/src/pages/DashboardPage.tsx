@@ -17,6 +17,7 @@ export default function DashboardPage() {
     data: profile,
     isLoading,
     isFetching,
+    error: queryError,
     refetch,
   } = useQuery<UserProfile>({
     queryKey: ["profile"],
@@ -45,7 +46,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!profile) {
+  if (!profile || queryError) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-red-600">Errore nel caricamento della Dashboard.</p>
