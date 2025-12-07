@@ -85,8 +85,8 @@ apiClient.interceptors.response.use(
       console.warn("DOVREBBE ANDARE AL LOGIN ED ESEGUIRE SOLO IL LOGOUT LOCALE");
       logout({ onlyLocal: true });
       return Promise.reject(error);
-    } else if (originalRequest.url?.includes("/auth/2fa/verify")) {
-      // Se l'errore viene dall'endpoint /auth/2fa/verify, eseguire solo logout() locale per evitare loop infinito.
+    } else if (originalRequest.url?.includes("/auth/2fa/verify") && error.response?.status === 401) {
+      // Se l'errore viene dall'endpoint /auth/2fa/verify e lo status code è 401, eseguire solo logout() locale per evitare loop infinito.
       console.log("DOVREBBE RESTITUIRE L'ERRORE ORIGINALE ED ESEGUIRE SOLO IL LOGOUT LOCALE");
       logout({ onlyLocal: true });
       return Promise.reject(error);
