@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { authApi } from "../api/auth.api";
-import { EmailDto } from "../api/user.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { handleError } from "../api/error";
+import { emailSchema, EmailFormData } from "../schemas/validation.schemas";
 
 export default function ForgotPasswordPage() {
   const [message, setMessage] = useState<string | null>(null);
@@ -16,7 +17,9 @@ export default function ForgotPasswordPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<EmailDto>();
+  } = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+  });
 
   const forgotPasswordMutation = useMutation({
     mutationFn: authApi.forgotPassword,
@@ -29,10 +32,10 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  const onSubmit = async (data: EmailDto) => {
+  const onSubmit = async (data: EmailFormData) => {
     setError(null);
     setMessage(null);
-    await forgotPasswordMutation.mutateAsync(data.email);
+    await forgotPasswordMutation.mutateAsync(data);
   };
 
   return (
@@ -44,34 +47,22 @@ export default function ForgotPasswordPage() {
             <p className="mt-2 text-center text-sm text-gray-600">Inserisci la tua email per ricevere il link di reset password</p>
           </div>
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
-          {message && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{message}</div>}
-          <div>
-            <Input
-              label="Email"
-              type="email"
-              {...register("email", {
-                required: "Email obbligatoria",
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Email non valida",
-                },
-              })}
-              error={errors.email?.message}
-            />
-          </div>
-
-          <div>
-            <Button type="submit" className="w-full" isLoading={forgotPasswordMutation.isPending}>
-              Invia Link Reset
-            </Button>
-          </div>
-          <div className="text-center">
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Torna al login
-            </Link>
-          </div>
-        </form>
+            {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+            {message && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{message}</div>}
+            <div>
+              <Input label="Email" type="email" {...register("email")} error={errors.email?.message} />
+            </div>
+            <div>
+              <Button type="submit" className="w-full" isLoading={forgotPasswordMutation.isPending}>
+                Invia Link Reset
+              </Button>
+            </div>
+            <div className="text-center">
+              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                Torna al login
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
     </div>

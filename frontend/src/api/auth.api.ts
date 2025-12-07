@@ -1,9 +1,5 @@
 import { apiClient } from "./client";
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
+import { LoginFormData, ResetPasswordFormData, EmailFormData } from "../schemas/validation.schemas";
 
 export interface LoginResponse {
   otpRequired: boolean;
@@ -13,34 +9,13 @@ export interface LoginResponse {
 
 export interface Login2FAResponse extends Omit<LoginResponse, "otpRequired"> {}
 
-export interface RegisterDto {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-export interface OtpDto {
-  code: string;
-}
-
-export interface TwoFactorSetupResponse {
+export interface Setup2FAResponse {
   qrcode: string;
   secret: string;
 }
 
-export interface ResetPasswordDto {
-  password: string;
-  confirmPassword: string;
-}
-
-export interface EmailDto {
-  email: string;
-}
-
 export const authApi = {
-  login: async (data: LoginDto): Promise<LoginResponse> => {
+  login: async (data: LoginFormData): Promise<LoginResponse> => {
     const response = await apiClient.post("/auth/login", data);
     return response.data.data;
   },
@@ -55,7 +30,7 @@ export const authApi = {
     return response.data.data;
   },
 
-  initiate2faSetup: async (): Promise<TwoFactorSetupResponse> => {
+  initiate2faSetup: async (): Promise<Setup2FAResponse> => {
     const response = await apiClient.get("/auth/2fa/setup");
     return response.data.data;
   },
@@ -75,16 +50,13 @@ export const authApi = {
     return response.data.data;
   },
 
-  forgotPassword: async (email: string): Promise<string> => {
-    const response = await apiClient.post("/auth/forgot-password", { email });
+  forgotPassword: async (data: EmailFormData): Promise<string> => {
+    const response = await apiClient.post("/auth/forgot-password", data);
     return response.data.data;
   },
 
-  resetPassword: async (password: string, confirmPassword: string, token: string): Promise<string> => {
-    const response = await apiClient.post(`/auth/reset-password?token=${token}`, {
-      password,
-      confirmPassword,
-    });
+  resetPassword: async (data: ResetPasswordFormData, token: string): Promise<string> => {
+    const response = await apiClient.post(`/auth/reset-password?token=${token}`, data);
     return response.data.data;
   },
 };

@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, Link } from "react-router-dom";
-import { authApi, LoginDto, LoginResponse } from "../api/auth.api";
+import { authApi, LoginResponse } from "../api/auth.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Verify2FAModal from "../components/Verify2FAModal";
 import { handleError } from "../api/error";
 import { useAuthStore } from "../store/auth.store";
+import { loginSchema, LoginFormData } from "../schemas/validation.schemas";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -19,7 +21,9 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginDto>();
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
@@ -41,7 +45,7 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = async (data: LoginDto) => {
+  const onSubmit = async (data: LoginFormData) => {
     setError(null);
     await loginMutation.mutateAsync(data);
   };
@@ -61,48 +65,24 @@ export default function LoginPage() {
               </p>
             </div>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
-            <div className="space-y-4">
-              <Input
-                label="Email"
-                type="email"
-                {...register("email", {
-                  required: "Email obbligatoria",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Email non valida",
-                  },
-                })}
-                error={errors.email?.message}
-              />
-              <Input
-                label="Password"
-                type="password"
-                {...register("password", {
-                  required: "Password obbligatoria",
-                  minLength: {
-                    value: 6,
-                    message: "La password deve essere di almeno 6 caratteri",
-                  },
-                })}
-                error={errors.password?.message}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                  Password dimenticata?
-                </Link>
+              {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+              <div className="space-y-4">
+                <Input label="Email" type="email" {...register("email")} error={errors.email?.message} />
+                <Input label="Password" type="password" {...register("password")} error={errors.password?.message} />
               </div>
-            </div>
-
-            <div>
-              <Button type="submit" className="w-full" isLoading={loginMutation.isPending}>
-                Accedi
-              </Button>
-            </div>
-          </form>
+              <div className="flex items-center justify-between">
+                <div className="text-sm">
+                  <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                    Password dimenticata?
+                  </Link>
+                </div>
+              </div>
+              <div>
+                <Button type="submit" className="w-full" isLoading={loginMutation.isPending}>
+                  Accedi
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

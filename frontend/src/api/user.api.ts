@@ -1,12 +1,5 @@
 import { apiClient } from "./client";
-
-export interface RegisterDto {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+import { RegisterFormData } from "../schemas/validation.schemas";
 
 export interface UserProfile {
   id: number;
@@ -19,12 +12,8 @@ export interface UserProfile {
   updatedAt: string;
 }
 
-export interface EmailDto {
-  email: string;
-}
-
 export const userApi = {
-  register: async (data: RegisterDto): Promise<string> => {
+  register: async (data: RegisterFormData): Promise<string> => {
     const response = await apiClient.post("/users/register", data);
     return response.data.data;
   },

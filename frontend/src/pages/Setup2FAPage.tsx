@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../api/auth.api";
-import { OtpDto } from "../api/auth.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { handleError } from "../api/error";
 import { useAuthStore } from "../store/auth.store";
+import { otpSchema, OtpFormData } from "../schemas/validation.schemas";
 
 export default function Setup2FAPage() {
   const navigate = useNavigate();
@@ -34,7 +35,9 @@ export default function Setup2FAPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<OtpDto>();
+  } = useForm<OtpFormData>({
+    resolver: zodResolver(otpSchema),
+  });
 
   const confirm2FAMutation = useMutation({
     mutationFn: authApi.confirm2faSetup,
@@ -52,7 +55,7 @@ export default function Setup2FAPage() {
     },
   });
 
-  const onSubmit = async (data: OtpDto) => {
+  const onSubmit = async (data: OtpFormData) => {
     setError(null);
     setSuccess(null);
     await confirm2FAMutation.mutateAsync(data.code);
@@ -92,19 +95,7 @@ export default function Setup2FAPage() {
               <p className="text-sm text-gray-600 text-center">Dopo aver scansionato il QR code, inserisci il codice a 6 cifre generato dall'app per completare la configurazione.</p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <Input
-                  label="Codice OTP"
-                  {...register("code", {
-                    required: "Codice OTP obbligatorio",
-                    pattern: {
-                      value: /^[0-9]{6}$/,
-                      message: "Il codice OTP deve contenere esattamente 6 numeri",
-                    },
-                  })}
-                  error={errors.code?.message}
-                  placeholder="000000"
-                  maxLength={6}
-                />
+                <Input label="Codice OTP" {...register("code")} error={errors.code?.message} placeholder="000000" maxLength={6} />
                 <Button type="submit" className="w-full" isLoading={confirm2FAMutation.isPending}>
                   Verifica e Abilita 2FA
                 </Button>

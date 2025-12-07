@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "../api/auth.api";
-import { OtpDto } from "../api/auth.api";
 import Button from "./Button";
 import Input from "./Input";
 import { handleError } from "../api/error";
+import { otpSchema, OtpFormData } from "../schemas/validation.schemas";
 
 interface Disable2FAModalProps {
   isOpen: boolean;
@@ -21,7 +22,9 @@ export default function Disable2FAModal({ isOpen, onClose }: Disable2FAModalProp
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<OtpDto>();
+  } = useForm<OtpFormData>({
+    resolver: zodResolver(otpSchema),
+  });
 
   const disable2FAMutation = useMutation({
     mutationFn: authApi.disable2fa,
@@ -36,7 +39,7 @@ export default function Disable2FAModal({ isOpen, onClose }: Disable2FAModalProp
     },
   });
 
-  const onSubmit = async (data: OtpDto) => {
+  const onSubmit = async (data: OtpFormData) => {
     setError(null);
     await disable2FAMutation.mutateAsync(data.code);
   };
@@ -57,19 +60,7 @@ export default function Disable2FAModal({ isOpen, onClose }: Disable2FAModalProp
           <p className="text-sm text-gray-600 mb-4">Inserisci il codice OTP dalla tua app di autenticazione per disabilitare 2FA.</p>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">{error}</div>}
-            <Input
-              label="Codice OTP"
-              {...register("code", {
-                required: "Codice OTP obbligatorio",
-                pattern: {
-                  value: /^[0-9]{6}$/,
-                  message: "Il codice OTP deve contenere esattamente 6 numeri",
-                },
-              })}
-              error={errors.code?.message}
-              placeholder="000000"
-              maxLength={6}
-            />
+            <Input label="Codice OTP" {...register("code")} error={errors.code?.message} placeholder="000000" maxLength={6} />
             <div className="flex space-x-3">
               <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
                 Annulla

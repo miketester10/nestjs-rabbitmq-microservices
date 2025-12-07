@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { authApi, Login2FAResponse } from "../api/auth.api";
-import { OtpDto } from "../api/auth.api";
 import { useAuthStore } from "../store/auth.store";
 import Button from "./Button";
 import Input from "./Input";
 import { handleError } from "../api/error";
+import { otpSchema, OtpFormData } from "../schemas/validation.schemas";
 
 interface Verify2FAModalProps {
   isOpen: boolean;
@@ -24,7 +25,9 @@ export default function Verify2FAModal({ isOpen, onClose }: Verify2FAModalProps)
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<OtpDto>();
+  } = useForm<OtpFormData>({
+    resolver: zodResolver(otpSchema),
+  });
 
   const verify2FAMutation = useMutation({
     mutationFn: authApi.verify2faCode,
@@ -41,7 +44,7 @@ export default function Verify2FAModal({ isOpen, onClose }: Verify2FAModalProps)
     },
   });
 
-  const onSubmit = async (data: OtpDto) => {
+  const onSubmit = async (data: OtpFormData) => {
     setError(null);
     await verify2FAMutation.mutateAsync(data.code);
   };
@@ -62,19 +65,7 @@ export default function Verify2FAModal({ isOpen, onClose }: Verify2FAModalProps)
           <p className="text-sm text-gray-600 mb-4">Inserisci il codice a 6 cifre dalla tua app di autenticazione per completare il login.</p>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">{error}</div>}
-            <Input
-              label="Codice OTP"
-              {...register("code", {
-                required: "Codice OTP obbligatorio",
-                pattern: {
-                  value: /^[0-9]{6}$/,
-                  message: "Il codice OTP deve contenere esattamente 6 numeri",
-                },
-              })}
-              error={errors.code?.message}
-              placeholder="000000"
-              maxLength={6}
-            />
+            <Input label="Codice OTP" {...register("code")} error={errors.code?.message} placeholder="000000" maxLength={6} />
             <div className="flex space-x-3">
               <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
                 Torna al login

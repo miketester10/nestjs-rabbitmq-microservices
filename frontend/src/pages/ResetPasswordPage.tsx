@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { authApi } from "../api/auth.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { handleError } from "../api/error";
-
-interface ResetPasswordDto {
-  password: string;
-  confirmPassword: string;
-}
+import { resetPasswordSchema, ResetPasswordFormData } from "../schemas/validation.schemas";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -22,16 +19,15 @@ export default function ResetPasswordPage() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm<ResetPasswordDto>();
-
-  const password = watch("password"); // Per la validazione della conferma password
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
 
   const resetPasswordMutation = useMutation({
-    mutationFn: ({ password, confirmPassword }: ResetPasswordDto) => {
+    mutationFn: (data: ResetPasswordFormData) => {
       if (!token) throw new Error("Token di reset mancante");
-      return authApi.resetPassword(password, confirmPassword, token);
+      return authApi.resetPassword(data, token);
     },
     onSuccess: (apiResponse: string) => {
       setSuccess(apiResponse);
@@ -45,7 +41,7 @@ export default function ResetPasswordPage() {
     },
   });
 
-  const onSubmit = async (data: ResetPasswordDto) => {
+  const onSubmit = async (data: ResetPasswordFormData) => {
     setError(null);
     setSuccess(null);
     await resetPasswordMutation.mutateAsync(data);
@@ -86,29 +82,9 @@ export default function ResetPasswordPage() {
             {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
             {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>}
             <div className="space-y-4">
-              <Input
-                label="Nuova Password"
-                type="password"
-                {...register("password", {
-                  required: "Password obbligatoria",
-                  minLength: {
-                    value: 6,
-                    message: "La password deve essere di almeno 6 caratteri",
-                  },
-                })}
-                error={errors.password?.message}
-              />
-              <Input
-                label="Conferma Password"
-                type="password"
-                {...register("confirmPassword", {
-                  required: "Conferma password obbligatoria",
-                  validate: (value) => value === password || "Le password non corrispondono",
-                })}
-                error={errors.confirmPassword?.message}
-              />
+              <Input label="Nuova Password" type="password" {...register("password")} error={errors.password?.message} />
+              <Input label="Conferma Password" type="password" {...register("confirmPassword")} error={errors.confirmPassword?.message} />
             </div>
-
             <div>
               <Button type="submit" className="w-full" isLoading={resetPasswordMutation.isPending}>
                 Reset Password
