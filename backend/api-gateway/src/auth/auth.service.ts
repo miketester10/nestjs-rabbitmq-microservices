@@ -236,7 +236,7 @@ export class AuthService {
     }
 
     if (!user.otpSecret) {
-      throw new BadRequestException('OTP Secret non trovato.');
+      throw new NotFoundException('OTP Secret non trovato.');
     }
 
     const decryptedSecret = this.encryptionService.decrypt(user.otpSecret);
