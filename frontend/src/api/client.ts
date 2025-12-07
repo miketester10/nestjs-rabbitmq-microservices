@@ -80,14 +80,10 @@ apiClient.interceptors.response.use(
   async (error: AxiosError): Promise<AxiosResponse | AxiosError> => {
     const originalRequest = error.config as InternalAxiosRequestConfig;
 
-    // Se l'errore viene dall'endpoint /auth/logout, eseguire solo logout() locale per evitare loop infinito.
-    if (originalRequest.url?.includes("/auth/logout")) {
-      console.warn("DOVREBBE ANDARE AL LOGIN ED ESEGUIRE SOLO IL LOGOUT LOCALE");
-      logout({ onlyLocal: true });
-      return Promise.reject(error);
-    } else if (originalRequest.url?.includes("/auth/2fa/verify") && error.response?.status === 401) {
-      // Se l'errore viene dall'endpoint /auth/2fa/verify e lo status code è 401, eseguire solo logout() locale per evitare loop infinito.
-      console.log("DOVREBBE RESTITUIRE L'ERRORE ORIGINALE ED ESEGUIRE SOLO IL LOGOUT LOCALE");
+    // Se l'errore viene dall'endpoint /auth/2fa/verify e lo status code è 401
+    // eseguire solo logout() locale per evitare loop infinito e non chiamare l'endpoint di refreshToken.
+    if (originalRequest.url?.includes("/auth/2fa/verify") && error.response?.status === 401) {
+      console.log("DOVREBBE RESTITUIRE L'ERRORE ORIGINALE ED ESEGUIRE IL LOGOUT LOCALE");
       logout({ onlyLocal: true });
       return Promise.reject(error);
     }
@@ -98,41 +94,35 @@ apiClient.interceptors.response.use(
         // Recupera refreshToken dal localStorage
         const refreshToken = localStorage.getItem("refreshToken");
 
-        if (refreshToken) {
-          // Tenta di ottenere i nuovi token usando il refreshToken
-          const response: AxiosResponse<RefreshTokenResponse> = await axios.get(`${API_BASE_URL}/auth/refresh-token`, {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`,
-            },
-          });
+        // Tenta di ottenere i nuovi token usando il refreshToken
+        const response: AxiosResponse<RefreshTokenResponse> = await axios.get(`${API_BASE_URL}/auth/refresh-token`, {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        });
 
-          const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
 
-          // Salva i nuovi token nel localStorage
-          localStorage.setItem("accessToken", accessToken);
-          localStorage.setItem("refreshToken", newRefreshToken);
+        // Salva i nuovi token nel localStorage
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
 
-          // Aggiorna l'header Authorization della richiesta originale con il nuovo accessToken
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        // Aggiorna l'header Authorization della richiesta originale con il nuovo accessToken
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-          // Riprova la richiesta originale con il nuovo accessToken
-          return apiClient(originalRequest);
-        } else {
-          // Se non è presente un refreshToken nel localStorage, esegue il logout.
-          console.warn("DOVREBBE ANDARE AL LOGIN PERCHE NON C'E' IL REFRESH TOKEN");
-          logout();
-          return Promise.reject(error);
-        }
+        // Riprova la richiesta originale con il nuovo accessToken
+        return apiClient(originalRequest);
       } catch (refreshError) {
-        // Se il refresh fallisce, esegue il logout.
-        // Questo può accadere se anche il refresh token è scaduto o invalido, oppure per errore Too Many Requests all'endpoint di refresh-token.
-        logout();
-        console.warn("DOVREBBE ANDARE AL LOGIN PERCHE IL REFRESH TOKEN E' SCADUTO/INVALIDO OPPURE TOO MANY REQUEST");
+        // Se il refresh fallisce, eseguire logout() locale per evitare loop infinito.
+        // Questo può accadere se anche il refresh token è scaduto oppure è invalido oppure non è presente nel localStorage.
+        // Inoltre può accadere anche in caso di Too Many Requests all'endpoint di refresh-token.
+        console.warn("DOVREBBE ANDARE AL LOGIN PERCHE IL REFRESH TOKEN E' SCADUTO/INVALIDO/NON PRESENTE OPPURE TOO MANY REQUEST, ED ESEGUIRE IL LOGOUT LOCALE");
+        logout({ onlyLocal: true });
         return Promise.reject(refreshError);
       }
     } else {
       // Se l'errore non è un 401, rigetta la promise con l'errore originale
-      console.log("DOVREBBE RESTITUIRE L'ERRORE ORIGINALE");
+      console.warn("DOVREBBE RESTITUIRE L'ERRORE ORIGINALE");
       return Promise.reject(error);
     }
   }
