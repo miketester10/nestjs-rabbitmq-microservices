@@ -7,6 +7,7 @@ import { authApi, LoginResponse } from "../api/auth.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Verify2FAModal from "../components/Verify2FAModal";
+import ResendVerificationEmailModal from "../components/ResendVerificationEmailModal";
 import { handleError } from "../api/error";
 import { useAuthStore } from "../store/auth.store";
 import { loginSchema, LoginFormData } from "../schemas/validation.schemas";
@@ -16,14 +17,19 @@ export default function LoginPage() {
   const { setTokens, setIsAuthenticated } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [show2FAModal, setShow2FAModal] = useState(false);
+  const [showResendEmailModal, setShowResendEmailModal] = useState(false);
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  const email = watch("email");
+  const isUnverifiedEmailError = error?.includes("Completare la verifica email per accedere.");
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
@@ -65,7 +71,18 @@ export default function LoginPage() {
               </p>
             </div>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-              {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+              {error && !isUnverifiedEmailError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+              {isUnverifiedEmailError && (
+                <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded space-y-3">
+                  <p className="font-medium">{error}</p>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm">Non hai ricevuto l'email di verifica o il link è scaduto?</p>
+                    <Button type="button" variant="secondary" onClick={() => setShowResendEmailModal(true)} className="w-full">
+                      Richiedi nuova email di verifica
+                    </Button>
+                  </div>
+                </div>
+              )}
               <div className="space-y-4">
                 <Input label="Email" type="email" {...register("email")} error={errors.email?.message} />
                 <Input label="Password" type="password" {...register("password")} error={errors.password?.message} />
@@ -87,6 +104,7 @@ export default function LoginPage() {
         </div>
       </div>
       <Verify2FAModal isOpen={show2FAModal} onClose={() => setShow2FAModal(false)} />
+      <ResendVerificationEmailModal isOpen={showResendEmailModal} onClose={() => setShowResendEmailModal(false)} initialEmail={email} onSuccess={() => setError(null)} />
     </>
   );
 }
