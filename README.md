@@ -115,6 +115,8 @@ This project demonstrates a modern microservices architecture with:
 - **React Router** - Client-side routing
 - **Axios** - HTTP client
 - **Zustand** - State management with persistence
+- **next-themes** - Theme management (dark mode)
+- **lucide-react** - Icon library
 
 ### Security & Auth
 
@@ -163,7 +165,9 @@ nestjs-rabbitmq-microservices/
 │       ├── api/              # API client
 │       ├── components/       # React components
 │       ├── pages/            # Page components
-│       └── store/            # State management (Zustand)
+│       ├── store/            # State management (Zustand)
+│       ├── index.css         # Global styles
+│       └── dark-mode-auto.css # Automatic dark mode styles
 ├── docker-compose.yml        # Docker services configuration
 └── README.md
 ```
@@ -292,6 +296,15 @@ The React frontend provides a complete user interface for all authentication and
 
 - **Frontend**: http://localhost:5173
 
+### Dark Mode
+
+The frontend includes a fully functional dark mode feature:
+- **Automatic theme detection** based on system preferences
+- **Persistent theme storage** in localStorage
+- **Smooth theme transitions** with no flash on page load
+- **Toggle button** positioned in the bottom-left corner (always visible)
+- **Automatic CSS adaptation** - all components adapt to dark mode without manual CSS modifications
+
 ### Frontend Features
 
 - ✅ User registration and login
@@ -306,6 +319,8 @@ The React frontend provides a complete user interface for all authentication and
 - ✅ Persistent authentication state (Zustand)
 - ✅ Automatic API request retry on 401 errors
 - ✅ Form validation with React Hook Form
+- ✅ Dark mode with system preference detection
+- ✅ Theme toggle with persistent storage
 
 ### Frontend Pages
 
