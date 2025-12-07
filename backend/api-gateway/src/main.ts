@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
 import { ErrorResponseFilter } from './common/filters/error-response.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { env, isDevelopment } from './config/env.schema';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,7 +18,13 @@ async function bootstrap() {
   );
 
   // Abilita CORS
-  app.enableCors();
+  app.enableCors({
+    origin: isDevelopment
+      ? true // Accetta tutte le origini in development
+      : ['https://www.dashboardmockup.it'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
 
   // Configura ed abilita Swagger
   const config = new DocumentBuilder()
@@ -36,6 +43,6 @@ async function bootstrap() {
   app.useGlobalFilters(new ErrorResponseFilter());
 
   // Avvia l'applicazione
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(env.PORT);
 }
 void bootstrap();

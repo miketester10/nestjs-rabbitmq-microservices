@@ -1,5 +1,5 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { env } from 'src/config/env.schema';
+import { env, isDevelopment } from 'src/config/env.schema';
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
@@ -10,7 +10,7 @@ export const dataSourceOptions: DataSourceOptions = {
   database: env.DB_NAME,
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/db/migrations/*.js'],
-  synchronize: env.NODE_ENV !== 'production',
+  synchronize: isDevelopment,
 };
 
 const dataSource = new DataSource(dataSourceOptions);

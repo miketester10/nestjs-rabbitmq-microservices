@@ -45,6 +45,7 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
+  PORT: z.string().trim().nonempty('PORT is required.').transform(Number),
 });
 
 const envParsed = envSchema.safeParse(process.env);
@@ -59,3 +60,4 @@ if (!envParsed.success) {
 
 type envType = z.infer<typeof envSchema>;
 export const env: envType = envParsed.data;
+export const isDevelopment = env.NODE_ENV !== 'production';
