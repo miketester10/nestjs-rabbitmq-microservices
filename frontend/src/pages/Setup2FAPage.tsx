@@ -8,7 +8,7 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import { handleError } from "../api/error";
 import { useAuthStore } from "../store/auth.store";
-import { otpSchema, OtpFormData } from "../schemas/validation.schemas";
+import { otpSchema, OtpFormData } from "../schemas/forms.schema";
 
 export default function Setup2FAPage() {
   const navigate = useNavigate();

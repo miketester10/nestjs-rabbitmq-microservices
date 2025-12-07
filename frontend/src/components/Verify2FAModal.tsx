@@ -8,7 +8,7 @@ import { useAuthStore } from "../store/auth.store";
 import Button from "./Button";
 import Input from "./Input";
 import { handleError } from "../api/error";
-import { otpSchema, OtpFormData } from "../schemas/validation.schemas";
+import { otpSchema, OtpFormData } from "../schemas/forms.schema";
 
 interface Verify2FAModalProps {
   isOpen: boolean;

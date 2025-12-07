@@ -6,7 +6,7 @@ import { authApi } from "../api/auth.api";
 import Button from "./Button";
 import Input from "./Input";
 import { handleError } from "../api/error";
-import { otpSchema, OtpFormData } from "../schemas/validation.schemas";
+import { otpSchema, OtpFormData } from "../schemas/forms.schema";
 
 interface Disable2FAModalProps {
   isOpen: boolean;

@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import App from "./App.tsx";
 import "./index.css";
 import "./dark-mode-auto.css";
+import { isDevelopment } from "./schemas/env.schema.ts";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,7 +26,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <App />
         </BrowserRouter>
-        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+        {isDevelopment && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
     </ThemeProvider>
   </React.StrictMode>

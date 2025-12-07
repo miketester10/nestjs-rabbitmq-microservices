@@ -10,7 +10,7 @@ import Verify2FAModal from "../components/Verify2FAModal";
 import ResendVerificationEmailModal from "../components/ResendVerificationEmailModal";
 import { handleError } from "../api/error";
 import { useAuthStore } from "../store/auth.store";
-import { loginSchema, LoginFormData } from "../schemas/validation.schemas";
+import { loginSchema, LoginFormData } from "../schemas/forms.schema";
 
 export default function LoginPage() {
   const navigate = useNavigate();

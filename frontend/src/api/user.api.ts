@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import { RegisterFormData } from "../schemas/validation.schemas";
+import { RegisterFormData } from "../schemas/forms.schema";
 
 export interface UserProfile {
   id: number;

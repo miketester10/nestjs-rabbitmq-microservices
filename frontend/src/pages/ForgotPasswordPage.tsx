@@ -7,7 +7,7 @@ import { authApi } from "../api/auth.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { handleError } from "../api/error";
-import { emailSchema, EmailFormData } from "../schemas/validation.schemas";
+import { emailSchema, EmailFormData } from "../schemas/forms.schema";
 
 export default function ForgotPasswordPage() {
   const [message, setMessage] = useState<string | null>(null);

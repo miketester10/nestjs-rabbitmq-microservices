@@ -6,7 +6,7 @@ import { userApi } from "../api/user.api";
 import Button from "./Button";
 import Input from "./Input";
 import { handleError } from "../api/error";
-import { emailSchema, EmailFormData } from "../schemas/validation.schemas";
+import { emailSchema, EmailFormData } from "../schemas/forms.schema";
 
 interface ResendVerificationEmailModalProps {
   isOpen: boolean;

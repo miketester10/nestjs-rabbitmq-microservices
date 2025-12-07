@@ -7,7 +7,7 @@ import { authApi } from "../api/auth.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { handleError } from "../api/error";
-import { resetPasswordSchema, ResetPasswordFormData } from "../schemas/validation.schemas";
+import { resetPasswordSchema, ResetPasswordFormData } from "../schemas/forms.schema";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();

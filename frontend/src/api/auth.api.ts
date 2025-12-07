@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import { LoginFormData, ResetPasswordFormData, EmailFormData } from "../schemas/validation.schemas";
+import { LoginFormData, ResetPasswordFormData, EmailFormData } from "../schemas/forms.schema";
 
 export interface LoginResponse {
   otpRequired: boolean;

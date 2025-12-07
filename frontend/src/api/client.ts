@@ -1,8 +1,9 @@
 import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "../store/auth.store";
+import { env } from "../schemas/env.schema";
 
 // URL base dell'API backend.
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE_URL = env.VITE_API_URL;
 
 /**
  * Funzione logout che accede allo store Zustand quando viene chiamata.

@@ -7,7 +7,7 @@ import { userApi } from "../api/user.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { handleError } from "../api/error";
-import { registerSchema, RegisterFormData } from "../schemas/validation.schemas";
+import { registerSchema, RegisterFormData } from "../schemas/forms.schema";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
