@@ -12,7 +12,7 @@ export default function VerifyEmailPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const hasRun = useRef<boolean>(false); // Evita esecuzioni multiple dello useEffect
+  const hasRun = useRef<boolean>(false); // Evita esecuzioni multiple dello useEffect in Strict Mode
 
   const verifyEmailMutation = useMutation({
     mutationFn: userApi.verifyEmail,
@@ -21,7 +21,7 @@ export default function VerifyEmailPage() {
       setSuccess(apiResponse);
       setTimeout(() => {
         navigate("/login");
-      }, 3000);
+      }, 4000);
     },
     onError: (err: Error) => {
       setSuccess(null);

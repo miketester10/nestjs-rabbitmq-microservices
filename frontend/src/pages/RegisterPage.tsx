@@ -28,7 +28,7 @@ export default function RegisterPage() {
       setSuccess(apiResponse);
       setTimeout(() => {
         navigate("/login");
-      }, 3000);
+      }, 4000);
     },
     onError: (err: Error) => {
       const errorMessage = handleError(err);

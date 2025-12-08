@@ -47,7 +47,7 @@ export default function Setup2FAPage() {
       setSuccess(apiResponse);
       setTimeout(() => {
         navigate("/dashboard");
-      }, 2000);
+      }, 4000);
     },
     onError: (err: Error) => {
       const errorMessage = handleError(err);
