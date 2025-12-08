@@ -11,3 +11,8 @@ services:
       - TZ=Europe/Rome
     networks:
       - my-custom-backend
+
+
+networks:
+  my-custom-backend:
+    external: true
