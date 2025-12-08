@@ -17,4 +17,4 @@ COPY . .
 RUN npx nest build
 
 # Avvia l'app NestJS
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]
