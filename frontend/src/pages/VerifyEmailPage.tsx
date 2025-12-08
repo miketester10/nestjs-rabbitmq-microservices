@@ -12,7 +12,7 @@ export default function VerifyEmailPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const hasRun = useRef<boolean>(false); // Evita esecuzioni multiple dello useEffect in Strict Mode
+  const hasRun = useRef<boolean>(false);
 
   const verifyEmailMutation = useMutation({
     mutationFn: userApi.verifyEmail,
@@ -31,7 +31,7 @@ export default function VerifyEmailPage() {
   });
 
   useEffect(() => {
-    if (hasRun.current) return;
+    if (hasRun.current) return; // Evita la doppia esecuzione dello useEffect in Strict Mode/Development
     hasRun.current = true;
 
     if (!token) {
@@ -57,8 +57,7 @@ export default function VerifyEmailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="mt-4 text-xl font-semibold text-gray-900">Verifica Completata!</h2>
-              <p className="mt-2 text-sm text-gray-600">{success}</p>
+              <h2 className="mt-4 text-xl font-semibold text-gray-900">{success}</h2>
               <p className="mt-4 text-sm text-gray-500">Reindirizzamento al login...</p>
             </div>
           )}

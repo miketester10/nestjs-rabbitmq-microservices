@@ -125,6 +125,9 @@ export class UserService {
     const user = await this.findOne(email);
     if (!user) throw new NotFoundException('Utente non trovato.');
 
+    // Controlla se l'email è già stata verificata
+    if (user.isVerified) return 'Email già verificata.';
+
     // Aggiorna lo stato dell'utente a verificato
     await this.userRepository.update(
       { email },
@@ -133,9 +136,6 @@ export class UserService {
       },
     );
 
-    // Elimina token e user mapping dalla cache
-    await this.cacheManager.del(`${EmailVerifyKey.TOKEN}:${token}`);
-    await this.cacheManager.del(`${EmailVerifyKey.USER}:${email}`);
     return 'Email verificata con successo.';
   }
 
