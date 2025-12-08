@@ -1,0 +1,11 @@
+services:
+  # Servizio per l'app NestJS
+  email-service:
+    build: .
+    container_name: EmailService
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Rome
+    networks:
+      - my-custom-backend

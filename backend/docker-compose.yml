@@ -13,15 +13,15 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
+    networks:
+      - my-custom-backend
 
   # Servizio per PostgreSQL
   postgres:
     image: postgres:13-alpine
     container_name: PostgreSQL
     ports:
-      - "5432:5432"
-    networks:
-      - backend   
+      - "5432:5432" 
     env_file:
       - .env
     environment:
@@ -29,6 +29,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - my-custom-backend
 
   # Servizio per Redis
   redis:
@@ -44,10 +46,12 @@ services:
       - redis-data:/data
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     restart: unless-stopped
+    networks:
+      - my-custom-backend
 
 
 networks:
-  backend:
+  my-custom-backend:
     external: true
 
 volumes:
