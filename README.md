@@ -157,21 +157,26 @@ nestjs-rabbitmq-microservices/
 │   │   │   ├── email/        # Email module (RabbitMQ client)
 │   │   │   ├── common/       # Shared utilities
 │   │   │   └── config/       # Configuration
-│   │   └── db/               # Database configuration
+│   │   ├── db/               # Database configuration
+│   │   ├── Dockerfile        # Docker configuration for API Gateway
+│   │   └── docker-compose.yml # Docker Compose for API Gateway
 │   └── email-service/        # Email microservice
-│       └── src/
-│           ├── email/        # Email processing
-│           ├── common/       # Shared interfaces
-│           └── config/       # Configuration
+│       ├── src/
+│       │   ├── email/        # Email processing
+│       │   ├── common/       # Shared interfaces
+│       │   └── config/       # Configuration
+│       ├── Dockerfile        # Docker configuration for Email Service
+│       └── docker-compose.yml # Docker Compose for Email Service
 ├── frontend/                 # React frontend application
-│   └── src/
-│       ├── api/              # API client
-│       ├── components/       # React components
-│       ├── pages/            # Page components
-│       ├── schemas/          # Zod validation schemas
-│       ├── store/            # State management (Zustand)
-│       ├── index.css         # Global styles
-│       └── dark-mode-auto.css # Automatic dark mode styles
+│   ├── src/
+│   │   ├── api/              # API client
+│   │   ├── components/       # React components
+│   │   ├── pages/            # Page components
+│   │   ├── schemas/          # Zod validation schemas
+│   │   ├── store/            # State management (Zustand)
+│   │   ├── index.css         # Global styles
+│   │   └── dark-mode-auto.css # Automatic dark mode styles
+│   └── vercel.json           # Vercel deployment configuration
 ├── docker-compose.yml        # Docker services configuration
 └── README.md
 ```
@@ -188,7 +193,7 @@ cd nestjs-rabbitmq-microservices
 2. **Create Docker network (if needed)**
 
 ```bash
-docker network create backend
+docker network create my-custom-backend
 ```
 
 3. **Start infrastructure services**
@@ -203,7 +208,7 @@ This will start:
 - **Redis** on port `6379`
 - **RabbitMQ** on port `5672` (Management UI on port `15672`)
 
-**Note**: The `docker-compose.yml` uses an external network named `backend`. If it doesn't exist, create it with the command above.
+**Note**: The `docker-compose.yml` uses an external network named `my-custom-backend`. If it doesn't exist, create it with the command above.
 
 4. **Install dependencies**
 
@@ -298,11 +303,15 @@ The React frontend provides a complete user interface for all authentication and
 
 ### Access the Frontend
 
-- **Frontend**: http://localhost:5173
+- **Development**: http://localhost:5173
+- **Production**: Deployed on Vercel (see [Deployment](#-deployment) section)
+
+**Note**: The frontend includes a `vercel.json` configuration file for proper SPA routing on Vercel. This ensures that all routes are handled correctly when deployed.
 
 ### Form Validation
 
 The frontend uses **Zod** for schema-based form validation integrated with React Hook Form:
+
 - **Centralized schemas** - All validation rules defined in `src/schemas/validation.schemas.ts`
 - **Type-safe forms** - TypeScript types automatically inferred from Zod schemas
 - **Consistent validation** - Same validation rules across all forms (register, login, reset password, etc.)
@@ -312,6 +321,7 @@ The frontend uses **Zod** for schema-based form validation integrated with React
 ### Dark Mode
 
 The frontend includes a fully functional dark mode feature:
+
 - **Automatic theme detection** based on system preferences
 - **Persistent theme storage** in localStorage
 - **Smooth theme transitions** with no flash on page load
@@ -488,7 +498,54 @@ The frontend will proxy API requests from `/api/*` to the API Gateway at `http:/
 
 ## 🚀 Deployment
 
+### Frontend Deployment (Vercel)
+
+The frontend is configured for deployment on Vercel with a `vercel.json` file that handles client-side routing for the React SPA.
+
+**Prerequisites:**
+
+- Vercel account
+- Repository connected to Vercel
+
+**Deployment Steps:**
+
+1. **Push the code to your repository** (the `vercel.json` file is already included)
+
+2. **Connect your repository to Vercel** (if not already connected)
+
+3. **Configure Environment Variables** in Vercel:
+
+   - `VITE_API_URL`: Your API Gateway URL (e.g., `https://your-api-gateway.com`)
+
+4. **Deploy**: Vercel will automatically detect the Vite project and deploy it
+
+**Important Notes:**
+
+- The `vercel.json` file ensures that all routes are handled by the React Router (prevents 404 errors on page refresh)
+- Make sure to update `VITE_API_URL` to point to your production API Gateway
+- The frontend will be available at your Vercel domain (e.g., `https://your-app.vercel.app`)
+
 ### Docker Deployment
+
+The project includes Dockerfiles for both backend services (API Gateway and Email Service).
+
+#### Individual Service Deployment
+
+**API Gateway:**
+
+```bash
+cd backend/api-gateway
+docker compose up -d
+```
+
+**Email Service:**
+
+```bash
+cd backend/email-service
+docker compose up -d
+```
+
+#### Docker Compose Deployment
 
 ```bash
 # Build and start all services
@@ -501,6 +558,12 @@ docker compose logs -f
 docker compose down
 ```
 
+**Note**: The Docker Compose files use an external network. Make sure to create it:
+
+```bash
+docker network create my-custom-backend
+```
+
 ### Production Considerations
 
 - Use environment-specific configuration
@@ -509,6 +572,9 @@ docker compose down
 - Set up monitoring and alerting
 - Use secrets management
 - Configure backup strategies
+- Update CORS settings to allow requests from your production frontend domain
+- Configure RabbitMQ and Redis for production (persistent storage, clustering, etc.)
+- Set up database backups and replication
 
 ## 🤝 Contributing
 
