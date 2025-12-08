@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { Copy, Check } from "lucide-react";
 import { authApi } from "../api/auth.api";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -16,6 +17,7 @@ export default function Setup2FAPage() {
   const { user } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   if (user?.is2faEnabled) {
     navigate("/dashboard");
@@ -61,6 +63,20 @@ export default function Setup2FAPage() {
     await confirm2FAMutation.mutateAsync(data.code);
   };
 
+  const copySecret = async () => {
+    if (setupData?.secret) {
+      try {
+        await navigator.clipboard.writeText(setupData.secret);
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 500);
+      } catch (err) {
+        console.error(`Errore durante la copia: ${JSON.stringify(err)}`);
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -87,9 +103,14 @@ export default function Setup2FAPage() {
                 <img src={setupData.qrcode} alt="QR Code 2FA" className="mx-auto border-2 border-gray-300 rounded-lg" />
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-2">
-                  <strong>Codice segreto (backup):</strong>
-                </p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-gray-600">
+                    <strong>Codice segreto (backup):</strong>
+                  </p>
+                  <button onClick={copySecret} className="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 outline-none focus:outline-none active:outline-none">
+                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-600" />}
+                  </button>
+                </div>
                 <p className="text-xs font-mono text-gray-800 break-all">{setupData.secret}</p>
               </div>
               <p className="text-sm text-gray-600 text-center">Dopo aver scansionato il QR code, inserisci il codice a 6 cifre generato dall'app per completare la configurazione.</p>
