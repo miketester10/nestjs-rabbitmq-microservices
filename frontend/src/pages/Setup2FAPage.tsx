@@ -31,6 +31,7 @@ export default function Setup2FAPage() {
     queryKey: ["2fa-setup"],
     queryFn: authApi.initiate2faSetup,
     enabled: !user?.is2faEnabled,
+    gcTime: 0, // I dati restano in memoria solo mentre il componente è montato; appena si smonta, la cache viene eliminata immediatamente. 
   });
 
   const {
