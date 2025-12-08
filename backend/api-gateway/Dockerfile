@@ -20,4 +20,4 @@ RUN npx nest build
 EXPOSE 3000
 
 # Avvia l'app NestJS
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]
