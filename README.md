@@ -168,6 +168,7 @@ nestjs-rabbitmq-microservices/
 │       ├── Dockerfile        # Docker configuration for Email Service
 │       └── docker-compose.yml # Docker Compose for Email Service
 ├── frontend/                 # React frontend application
+│   ├── public/               # Static assets
 │   ├── src/
 │   │   ├── api/              # API client
 │   │   ├── components/       # React components
