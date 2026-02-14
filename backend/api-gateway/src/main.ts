@@ -5,9 +5,13 @@ import { SuccessResponseInterceptor } from './common/interceptors/success-respon
 import { ErrorResponseFilter } from './common/filters/error-response.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { env, isDevelopment } from './config/env.schema';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Abilita Helmet per la sicurezza HTTP
+  app.use(helmet());
 
   // Abilita la validazione globale
   app.useGlobalPipes(
